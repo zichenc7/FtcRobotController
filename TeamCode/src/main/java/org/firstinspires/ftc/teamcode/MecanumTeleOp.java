@@ -6,12 +6,17 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
+    private ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
         // Declare our motors
         // Make sure your ID's match your configuration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
@@ -36,6 +41,7 @@ public class MecanumTeleOp extends LinearOpMode {
         imu.initialize(parameters);
 
         waitForStart();
+        runtime.reset();
 
         if (isStopRequested()) return;
 
@@ -72,6 +78,9 @@ public class MecanumTeleOp extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", frontLeftPower, backLeftPower, frontRightPower, backRightPower);
         }
     }
 }
