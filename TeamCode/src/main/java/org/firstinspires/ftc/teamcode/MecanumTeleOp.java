@@ -38,7 +38,9 @@ public class MecanumTeleOp extends LinearOpMode {
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);
+        boolean imuStatus = imu.initialize(parameters);
+        telemetry.addData("IMU", "Initialized: " + imuStatus);
+        telemetry.update();
 
         waitForStart();
         runtime.reset();
@@ -81,6 +83,7 @@ public class MecanumTeleOp extends LinearOpMode {
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", frontLeftPower, backLeftPower, frontRightPower, backRightPower);
+            telemetry.update();
         }
     }
 }
