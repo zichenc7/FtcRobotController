@@ -63,7 +63,6 @@ public class MecanumTeleOp extends LinearOpMode {
         // armPower for future tuning
         double armPower = ry;
         armMotor.setPower(armPower);
-
         telemetry.addData("Arm", "power: (%.2f", armPower);
     }
 
@@ -83,7 +82,6 @@ public class MecanumTeleOp extends LinearOpMode {
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        // frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
