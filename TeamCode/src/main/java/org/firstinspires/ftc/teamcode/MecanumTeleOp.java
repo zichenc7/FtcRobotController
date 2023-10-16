@@ -17,6 +17,7 @@ public class MecanumTeleOp extends LinearOpMode {
     private DcMotor backLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backRightMotor;
+    private DcMotor armMotor;
 
     public IMU setIMU() {
         // Retrieve the IMU from the hardware map
@@ -58,6 +59,13 @@ public class MecanumTeleOp extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", frontLeftPower, backLeftPower, frontRightPower, backRightPower);
     }
+    public void armOp(double ry) {
+        // armPower for future tuning
+        double armPower = ry;
+        armMotor.setPower(armPower);
+
+        telemetry.addData("Arm", "power: (%.2f", armPower);
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -69,6 +77,7 @@ public class MecanumTeleOp extends LinearOpMode {
         backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
         frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
         backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+        armMotor = hardwareMap.dcMotor.get("armMotor");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -89,6 +98,8 @@ public class MecanumTeleOp extends LinearOpMode {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
+            // ry will be for the arm motor
+            double ry = gamepad1.right_stick_y;
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -98,6 +109,7 @@ public class MecanumTeleOp extends LinearOpMode {
             }
 
             motorOp(imu, y, x, rx);
+            armOp(ry);
 
             telemetry.update();
         }
