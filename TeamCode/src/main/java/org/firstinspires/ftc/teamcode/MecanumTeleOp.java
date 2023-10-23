@@ -84,7 +84,7 @@ public class MecanumTeleOp extends LinearOpMode {
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Retrieve the IMU from the hardware map
@@ -105,8 +105,11 @@ public class MecanumTeleOp extends LinearOpMode {
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
             // The equivalent button is start on Xbox-style controllers.
+            //
             if (gamepad1.y) {
                 imu.resetYaw();
+                telemetry.addData("Status", "IMU resetted");
+                telemetry.update();
             }
 
             motorOp(imu, y, x, rx);
