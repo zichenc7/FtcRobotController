@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,6 +19,7 @@ public class MecanumTeleOp extends LinearOpMode {
     private DcMotor frontRightMotor;
     private DcMotor backRightMotor;
     // private DcMotor armMotor;
+    // private Servo droneLaunchServo;
 
     public IMU setIMU() {
         // Retrieve the IMU from the hardware map
@@ -60,17 +62,28 @@ public class MecanumTeleOp extends LinearOpMode {
         telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", frontLeftPower, backLeftPower, frontRightPower, backRightPower);
     }
 
-    /*
-    public void armOp(double ry) {
+/*
+    public void armOp(double armUp, double armDown) {
         // armPower for future tuning
-        double armPower = ry;
+        // this has not been tested
+        double armPower = armUp - armDown;
         armMotor.setPower(armPower);
         telemetry.addData("Arm", "power: (%.2f", armPower);
     }
-     */
-
+*/
+/*
+    public void launchDrone {
+        // the position ranges from [0,1]
+        // 0 is 0 degrees, 0.5 is 90, 1 is 180
+        // double check to see if this is true for the servo we're using
+        // modify position when needed
+        double position = 0;
+        droneLaunchServo.setPosition(position);
+    }
+*/
     @Override
     public void runOpMode() throws InterruptedException {
+        // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -80,6 +93,7 @@ public class MecanumTeleOp extends LinearOpMode {
         frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
         backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
         // armMotor = hardwareMap.dcMotor.get("armMotor");
+        // droneLaunchServo = hardwareMap.servo.get("droneLaunchServo");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -99,21 +113,28 @@ public class MecanumTeleOp extends LinearOpMode {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
-            // ry will be for the arm motor
-            double ry = -gamepad1.right_stick_y;
+            // double armUp = gamepad1.left_trigger;
+            // double armDown = -gamepad1.right_trigger;
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
             // The equivalent button is start on Xbox-style controllers.
-            //
             if (gamepad1.y) {
                 imu.resetYaw();
                 telemetry.addData("Status", "IMU resetted");
                 telemetry.update();
             }
 
+            /*
+            if (gamepad1.start) {
+               //launchDrone();
+               telemetry.addData("Status", "Drone launched, hopefully");
+               telemetry.update();
+            }
+            */
+
             motorOp(imu, y, x, rx);
-            // armOp(ry);
+            // armOp(armUp, armDown);
 
             telemetry.update();
         }
