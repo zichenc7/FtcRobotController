@@ -10,8 +10,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public abstract class OpModeBase extends LinearOpMode {
     // constants
+    public static final double v = 1;
     private static final double launchPos = 0;
     private static final double restPos = 0.5;
+    private static final double clawMax = 2;
+    private static final double clawMin = 0;
+    //0.48
+    private static final double clawSpeed = 0.1;
+    private static final double deadband = 0.05;
     // fields
     private DcMotor frontLeftMotor;
     private DcMotor backLeftMotor;
@@ -19,6 +25,9 @@ public abstract class OpModeBase extends LinearOpMode {
     private DcMotor backRightMotor;
     // private DcMotor armMotor;
     private Servo droneLaunchServo;
+    private Servo clawServo;
+    private double clawValue = 0;
+
 
     public double[] motorOp(IMU imu, double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -69,6 +78,18 @@ public abstract class OpModeBase extends LinearOpMode {
         droneLaunchServo.setPosition(OpModeBase.restPos);
     }
 
+    public void clawOp() {
+        clawServo.setPosition(clawValue);
+    }
+    public void clawModify(double x){
+        clawValue += x;
+        if (clawValue >= clawMax){
+            clawValue = clawMax;
+        } else if (clawValue <= clawMin) {
+            clawValue = clawMin;
+        }
+    }
+
     public void setBackLeftMotor(DcMotor backLeftMotor) {
         this.backLeftMotor = backLeftMotor;
     }
@@ -98,5 +119,26 @@ public abstract class OpModeBase extends LinearOpMode {
     }
     public Servo getDroneLaunchServo() {
         return droneLaunchServo;
+    }
+    public void setClawServo(Servo clawServo) {
+        this.clawServo = clawServo;
+    }
+    public Servo getClawServo() {
+        return clawServo;
+    }
+    public double getClawSpeed() {
+        return clawSpeed;
+    }
+
+    public double deadband(double x) {
+        return Math.abs(x) <= OpModeBase.deadband ? 0 : x;
+    }
+
+    public double getClawPos() {
+        return clawValue;
+    }
+
+    public double v() {
+        return v;
     }
 }

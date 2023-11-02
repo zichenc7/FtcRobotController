@@ -34,6 +34,7 @@ public class MecanumTeleOp extends OpModeBase {
         DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
         // armMotor = hardwareMap.dcMotor.get("armMotor");
         Servo droneLaunchServo = hardwareMap.servo.get("droneLaunchServo");
+        Servo clawServo = hardwareMap.servo.get("clawServo");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -46,6 +47,7 @@ public class MecanumTeleOp extends OpModeBase {
         setFrontRightMotor(frontRightMotor);
         setBackRightMotor(backRightMotor);
         setDroneLaunchServo(droneLaunchServo);
+        setClawServo(clawServo);
 
         // Retrieve the IMU from the hardware map
         IMU imu = setIMU();
@@ -56,9 +58,9 @@ public class MecanumTeleOp extends OpModeBase {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
+            double y = -deadband(gamepad1.left_stick_y)*v; // Remember, Y stick value is reversed
+            double x = deadband(gamepad1.left_stick_x)*v;
+            double rx = deadband(gamepad1.right_stick_x)*v;
             // double armUp = gamepad1.left_trigger;
 
             // double armDown = -gamepad1.right_trigger;
@@ -71,17 +73,21 @@ public class MecanumTeleOp extends OpModeBase {
                 telemetry.addData("Status", "IMU reset");
                 telemetry.update();
             }
-
-
             if (gamepad1.x) {
                launchDrone();
                telemetry.addData("Status", "Drone launched");
                telemetry.update();
             }
-
+            if (gamepad1.right_bumper){
+                clawModify(getClawSpeed());
+            } else if (gamepad1.left_bumper) {
+                clawModify(-getClawSpeed());
+            }
 
             double[] motors = motorOp(imu, y, x, rx);
+            clawOp();
             telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", motors[0], motors[1], motors[2], motors[3]);
+            telemetry.addData("Claw", "Claw positon: (%.5f)", getClawPos());
             // armOp(armUp, armDown);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
