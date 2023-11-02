@@ -5,29 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import static org.firstinspires.ftc.teamcode.Constants.*;
 
 public abstract class OpModeBase extends LinearOpMode {
-    // constants
-    public static final double v = 1;
-    private static final double launchPos = 0;
-    private static final double restPos = 0.5;
-    private static final double clawMax = 2;
-    private static final double clawMin = 0;
-    //0.48
-    private static final double clawSpeed = 0.1;
-    private static final double deadband = 0.05;
     // fields
     private DcMotor frontLeftMotor;
     private DcMotor backLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backRightMotor;
-    // private DcMotor armMotor;
+    //private DcMotor armMotor;
     private Servo droneLaunchServo;
     private Servo clawServo;
-    private double clawValue = 0;
-
+    private double clawPos = CLAW_MIN;
+    // CLAW_MIN should be when it's fully closed
 
     public double[] motorOp(IMU imu, double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -70,25 +61,38 @@ public abstract class OpModeBase extends LinearOpMode {
 
     public void launchDrone() {
         // the position ranges from [0,1]
-        // 0 is 0 degrees, 0.5 is 90, 1 is 180
+        // 0 is min, 0.5 is midpoint, 1 is max
         // double check to see if this is true for the servo we're using
         // modify position when needed
-        droneLaunchServo.setPosition(OpModeBase.launchPos);
+        droneLaunchServo.setPosition(DRONE_LAUNCH_POS);
         sleep(500);
-        droneLaunchServo.setPosition(OpModeBase.restPos);
+        droneLaunchServo.setPosition(DRONE_REST_POS);
+        sleep(500);
     }
-
-    public void clawOp() {
-        clawServo.setPosition(clawValue);
+    public double clawOp() {
+        clawServo.setPosition(clawPos);
+        return clawPos;
     }
-    public void clawModify(double x){
-        clawValue += x;
-        if (clawValue >= clawMax){
-            clawValue = clawMax;
-        } else if (clawValue <= clawMin) {
-            clawValue = clawMin;
+    public void clawModify(double increment){
+        clawPos += increment;
+        if (clawPos > CLAW_MAX){
+            clawPos = CLAW_MAX;
+        } else if (clawPos < CLAW_MIN) {
+            clawPos = CLAW_MIN;
         }
     }
+    public double deadband(double x) {
+        return Math.abs(x) <= DEAD_BAND ? 0 : x;
+    }
+    /*
+    public double armOp(double armUp, double armDown) {
+        // armPower for future tuning
+        // this has not been tested direction may be messed up.
+        double armPower = armUp - armDown;
+        armMotor.setPower(armPower);
+        return armPower;
+    }
+   */
 
     public void setBackLeftMotor(DcMotor backLeftMotor) {
         this.backLeftMotor = backLeftMotor;
@@ -126,19 +130,15 @@ public abstract class OpModeBase extends LinearOpMode {
     public Servo getClawServo() {
         return clawServo;
     }
-    public double getClawSpeed() {
-        return clawSpeed;
-    }
-
-    public double deadband(double x) {
-        return Math.abs(x) <= OpModeBase.deadband ? 0 : x;
-    }
-
     public double getClawPos() {
-        return clawValue;
+        return clawPos;
     }
-
-    public double v() {
-        return v;
+    /*
+    public void setArmMotor(DcMotor armMotor) {
+        this.armMotor = armMotor;
     }
+    public DcMotor getArmMotor() {
+        return armMotor;
+    }
+    */
 }

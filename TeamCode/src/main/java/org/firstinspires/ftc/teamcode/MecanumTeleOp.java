@@ -6,25 +6,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
+import static org.firstinspires.ftc.teamcode.Constants.*;
 @TeleOp
 public class MecanumTeleOp extends OpModeBase {
     public ElapsedTime runtime = new ElapsedTime();
-    /*
-    public void armOp(double armUp, double armDown) {
-        // armPower for future tuning
-        // this has not been tested
-        double armPower = armUp - armDown;
-        armMotor.setPower(armPower);
-        telemetry.addData("Arm", "power: (%.2f", armPower);
-    }
-*/
     @Override
     public void runOpMode() throws InterruptedException {
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
+        telemetry.log().setCapacity(6);
         telemetry.update();
 
         // motor initialization
@@ -58,9 +48,9 @@ public class MecanumTeleOp extends OpModeBase {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = -deadband(gamepad1.left_stick_y)*v; // Remember, Y stick value is reversed
-            double x = deadband(gamepad1.left_stick_x)*v;
-            double rx = deadband(gamepad1.right_stick_x)*v;
+            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
+            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
+            double rx = deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
             // double armUp = gamepad1.left_trigger;
 
             // double armDown = -gamepad1.right_trigger;
@@ -70,25 +60,27 @@ public class MecanumTeleOp extends OpModeBase {
             // The equivalent button is start on Xbox-style controllers.
             if (gamepad1.y) {
                 imu.resetYaw();
-                telemetry.addData("Status", "IMU reset");
-                telemetry.update();
+                telemetry.log().add(runtime + " IMU reset");
             }
             if (gamepad1.x) {
                launchDrone();
-               telemetry.addData("Status", "Drone launched");
-               telemetry.update();
+               telemetry.log().add(runtime + " Drone launched");
             }
+            // We will need right bumper for the armServo
             if (gamepad1.right_bumper){
-                clawModify(getClawSpeed());
+                clawModify(CLAW_INCREMENT);
             } else if (gamepad1.left_bumper) {
-                clawModify(-getClawSpeed());
+                clawModify(-CLAW_INCREMENT);
             }
 
             double[] motors = motorOp(imu, y, x, rx);
-            clawOp();
+            double clawPos = clawOp();
+            // double armPower = armOp(armUp, armDown);
+
+
             telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", motors[0], motors[1], motors[2], motors[3]);
-            telemetry.addData("Claw", "Claw positon: (%.5f)", getClawPos());
-            // armOp(armUp, armDown);
+            //telemetry.addData("Arm", "armMotor power: (%.2f)", armPower);
+            telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
