@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import static org.firstinspires.ftc.teamcode.Constants.*;
 
@@ -14,12 +16,11 @@ public abstract class OpModeBase extends LinearOpMode {
     private DcMotor backLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backRightMotor;
-    //private DcMotor armMotor;
+    private DcMotor armMotor;
     private Servo droneLaunchServo;
     private Servo clawServo;
+    private Servo armServo;
     private double clawPos = CLAW_MIN;
-    // CLAW_MIN should be when it's fully closed
-
     public double[] motorOp(IMU imu, double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -70,21 +71,24 @@ public abstract class OpModeBase extends LinearOpMode {
         sleep(500);
     }
     public double clawOp() {
+        clawPos = Range.clip(clawPos, CLAW_MIN, CLAW_MAX);
         clawServo.setPosition(clawPos);
         return clawPos;
     }
     public void clawModify(double increment){
         clawPos += increment;
-        if (clawPos > CLAW_MAX){
-            clawPos = CLAW_MAX;
-        } else if (clawPos < CLAW_MIN) {
-            clawPos = CLAW_MIN;
-        }
     }
+
+    public double armServoOp(double power){
+        armServo.setPosition(power);
+        return power;
+    }
+    // We need to set this back to like the claw servo control method
+    // this is because we need to constantly readjust the claw angle due to gravity pulling it down
     public double deadband(double x) {
         return Math.abs(x) <= DEAD_BAND ? 0 : x;
     }
-    /*
+
     public double armOp(double armUp, double armDown) {
         // armPower for future tuning
         // this has not been tested direction may be messed up.
@@ -92,7 +96,6 @@ public abstract class OpModeBase extends LinearOpMode {
         armMotor.setPower(armPower);
         return armPower;
     }
-   */
 
     public void setBackLeftMotor(DcMotor backLeftMotor) {
         this.backLeftMotor = backLeftMotor;
@@ -133,12 +136,18 @@ public abstract class OpModeBase extends LinearOpMode {
     public double getClawPos() {
         return clawPos;
     }
-    /*
+    public void setArmServo(Servo armServo) {
+        this.armServo = armServo;
+    }
+    public Servo getArmServo() {
+        return armServo;
+    }
+
     public void setArmMotor(DcMotor armMotor) {
         this.armMotor = armMotor;
     }
     public DcMotor getArmMotor() {
         return armMotor;
     }
-    */
+
 }
