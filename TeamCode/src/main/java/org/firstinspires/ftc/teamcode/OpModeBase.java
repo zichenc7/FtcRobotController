@@ -21,6 +21,7 @@ public abstract class OpModeBase extends LinearOpMode {
     private Servo clawServo;
     private Servo armServo;
     private double clawPos = CLAW_MIN;
+    private double armServoPos = ARM_SERVO_MIN + (ARM_SERVO_MAX-ARM_SERVO_MIN) / 2;
     public double[] motorOp(IMU imu, double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -75,14 +76,24 @@ public abstract class OpModeBase extends LinearOpMode {
         clawServo.setPosition(clawPos);
         return clawPos;
     }
-    public void clawModify(double increment){
-        clawPos += increment;
+    public void clawModify(){
+        if (clawPos == CLAW_MIN){
+            clawPos = CLAW_MAX;
+        } else if(clawPos == CLAW_MAX){
+            clawPos = CLAW_MIN;
+        }
+        sleep(200);
     }
 
-    public double armServoOp(double power){
-        armServo.setPosition(power);
-        return power;
+    public double armServoOp() {
+        armServoPos = Range.clip(armServoPos, ARM_SERVO_MIN, ARM_SERVO_MAX);
+        armServo.setPosition(armServoPos);
+        return armServoPos;
     }
+    public void armServoModify(double increment){
+        armServoPos += increment;
+    }
+
     // We need to set this back to like the claw servo control method
     // this is because we need to constantly readjust the claw angle due to gravity pulling it down
     public double deadband(double x) {
@@ -92,9 +103,9 @@ public abstract class OpModeBase extends LinearOpMode {
     public double armOp(double armUp, double armDown) {
         // armPower for future tuning
         // this has not been tested direction may be messed up.
-        double armPower = armUp - armDown;
+        double armPower = armUp + armDown;
         armMotor.setPower(armPower);
-        return armPower;
+        return armMotor.getCurrentPosition();
     }
 
     public void setBackLeftMotor(DcMotor backLeftMotor) {
