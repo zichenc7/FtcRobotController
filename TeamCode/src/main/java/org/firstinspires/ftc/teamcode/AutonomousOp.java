@@ -1,48 +1,46 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+/*
+ * This is a simple routine to test translational drive capabilities.
+ */
+@Config
 @Autonomous
-public class AutonomousOp extends OpModeBase {
-    public ElapsedTime runtime = new ElapsedTime();
+public class AutonomousOp extends LinearOpMode {
+    public static double DISTANCE = 60; // in
+
     @Override
     public void runOpMode() throws InterruptedException {
-        telemetry.addData("Status", "Initialized");
-        telemetry.log().setCapacity(6);
-        telemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
-        telemetry.update();
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+        MecanumDriveBase drive = new MecanumDriveBase(hardwareMap);
 
-        DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
-
-        Servo droneLaunchServo = hardwareMap.servo.get("droneLaunchServo");
-        Servo clawServo = hardwareMap.servo.get("clawServo");
-        Servo armServo = hardwareMap.servo.get("armServo");
-
-        IMU imu = setIMU();
+        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+                .forward(DISTANCE)
+                .build();
 
         waitForStart();
-        runtime.reset();
 
         if (isStopRequested()) return;
 
-        while (opModeIsActive()) {
+        drive.followTrajectory(trajectory);
 
-        }
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("finalX", poseEstimate.getX());
+        telemetry.addData("finalY", poseEstimate.getY());
+        telemetry.addData("finalHeading", poseEstimate.getHeading());
+        telemetry.update();
+
+        while (!isStopRequested() && opModeIsActive()) ;
     }
-
 }
