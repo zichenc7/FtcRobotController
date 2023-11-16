@@ -8,7 +8,7 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
-// 192.168.49.1:8080/dash
+// 192.168.43.1:8080/dash
 @Config
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
