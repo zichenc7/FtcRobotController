@@ -42,5 +42,6 @@ public class AutonomousOp extends LinearOpMode {
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;
+        drive.visionPortal.close();
     }
 }

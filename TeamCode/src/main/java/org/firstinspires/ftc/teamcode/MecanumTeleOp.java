@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,6 +19,8 @@ public class MecanumTeleOp extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -46,7 +52,6 @@ public class MecanumTeleOp extends LinearOpMode {
             if (gamepad1.back) {
                drive.launchDrone();
                telemetry.log().add(runtime + " Drone launched");
-               telemetry.speak("Drone Launched");
             }
             if (gamepad1.a) {
                 drive.clawModify();
@@ -73,5 +78,6 @@ public class MecanumTeleOp extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
+        drive.visionPortal.close();
     }
 }

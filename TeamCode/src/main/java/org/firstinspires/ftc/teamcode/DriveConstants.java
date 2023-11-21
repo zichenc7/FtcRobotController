@@ -17,19 +17,20 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
  */
 @Config
 public class DriveConstants {
-    public static final double DRIVE_MULTI = 0.6;
-    public static final double ARM_MULTI = 1;
-    public static final double DRONE_LAUNCH_POS = 0;
-    public static final double DRONE_REST_POS = 0.5;
-    public static final double CLAW_MAX = 1;
-    public static final double CLAW_MIN = 0.6;
-    public static final double ARM_SERVO_MIN = 0;
-    public static final double ARM_SERVO_MAX = 1;
-    public static final double ARM_SERVO_INCREMENT = 0.002;
-    public static final double DEAD_BAND = 0.05;
+    public static double DRIVE_MULTI = 0.6;
+    public static double ARM_MULTI = 1;
+    public static double DRONE_LAUNCH_POS = 0;
+    public static double DRONE_REST_POS = 0.5;
+    public static double CLAW_MAX = 1;
+    public static double CLAW_MIN = 0.6;
+    public static double ARM_SERVO_MIN = 0;
+    public static double ARM_SERVO_MAX = 1;
+    public static double ARM_SERVO_INCREMENT = 0.002;
+    public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return Math.abs(x) <= DEAD_BAND ? 0 : x;
     }
+    public static boolean USE_WEBCAM = true;
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
@@ -49,8 +50,8 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(17, 0, 0, 13.5);
+    //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV) for f maybe
 
     /*
      * These are physical constants that can be determined from your robot (including the track
