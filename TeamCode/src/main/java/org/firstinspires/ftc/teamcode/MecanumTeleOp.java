@@ -36,8 +36,8 @@ public class MecanumTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
-            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
-            double rx = deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
+            double x = -deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
+            double rx = -deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
 
@@ -64,14 +64,25 @@ public class MecanumTeleOp extends LinearOpMode {
                 drive.armServoModify(ARM_SERVO_INCREMENT);
             }
 
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            y,
+                            x,
+                            rx
+                    )
+            );
 
-            double[] motors = drive.motorOp(y, x, rx);
+            drive.update();
+
             double clawPos = drive.clawOp();
             double armServoPos = drive.armServoOp();
             double armPos = drive.armOp(armUp, armDown);
 
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            telemetry.addData("x", poseEstimate.getX());
+            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("heading", poseEstimate.getHeading());
 
-            telemetry.addData("Motors", "frontLeft (%.2f)\n backLeft (%.2f)\n frontRight (%.2f)\n backRight (%.2f)", motors[0], motors[1], motors[2], motors[3]);
             telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);

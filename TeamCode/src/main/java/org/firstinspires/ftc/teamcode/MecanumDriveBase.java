@@ -65,10 +65,10 @@ import android.graphics.Canvas;
  */
 @Config
 public class MecanumDriveBase extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 1.185;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -127,6 +127,7 @@ public class MecanumDriveBase extends MecanumDrive {
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+        armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -377,6 +378,7 @@ public class MecanumDriveBase extends MecanumDrive {
         armMotor.setPower(armPower);
         return armMotor.getCurrentPosition();
     }
+    /*
     public double[] motorOp(double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -402,6 +404,7 @@ public class MecanumDriveBase extends MecanumDrive {
 
         return new double[]{frontLeftPower, backLeftPower, frontRightPower, backRightPower};
     }
+    */
     public static class CameraStreamProcessor implements VisionProcessor, CameraStreamSource {
         private final AtomicReference<Bitmap> lastFrame =
                 new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
