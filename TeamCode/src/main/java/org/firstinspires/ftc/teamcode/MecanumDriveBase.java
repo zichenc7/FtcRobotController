@@ -1,5 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.encoderTicksToInches;
+import static org.firstinspires.ftc.teamcode.DriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.DriveConstants.kStatic;
+import static org.firstinspires.ftc.teamcode.DriveConstants.kV;
+import static java.lang.Thread.sleep;
+
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -45,6 +68,7 @@ import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
@@ -52,13 +76,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.firstinspires.ftc.teamcode.DriveConstants.*;
-
-import static java.lang.Thread.sleep;
-
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
@@ -93,7 +110,9 @@ public class MecanumDriveBase extends MecanumDrive {
     private List<Integer> lastEncVels = new ArrayList<>();
     private double clawPos = CLAW_MIN;
     private double armServoPos = ARM_SERVO_MIN + (ARM_SERVO_MAX-ARM_SERVO_MIN) / 2;
+    //private int armMotorPos = 0;
     private AprilTagProcessor aprilTag;
+    private TfodProcessor tfod;
     // add a TensorFlowProcessor at some point
     public VisionPortal visionPortal;
 
@@ -128,6 +147,8 @@ public class MecanumDriveBase extends MecanumDrive {
 
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -376,8 +397,19 @@ public class MecanumDriveBase extends MecanumDrive {
         // this has not been tested direction may be messed up.
         double armPower = armUp + armDown;
         armMotor.setPower(armPower);
+        /*
+        if (!armMotor.isBusy()){
+            armMotor.setTargetPosition(armMotorPos);
+        }
+        */
         return armMotor.getCurrentPosition();
     }
+    /*
+    public void armMotorModify(double armUp, double armDown) {
+        // these values will need to be changed
+        armMotorPos += (int)(armUp + armDown);
+    }
+     */
 
     public double[] motorOp(double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -435,8 +467,10 @@ public class MecanumDriveBase extends MecanumDrive {
         }
     }
     private void initWebcam(HardwareMap hardwareMap){
-        final CameraStreamProcessor processor = new CameraStreamProcessor();
+        final CameraStreamProcessor dashboard = new CameraStreamProcessor();
         aprilTag = new AprilTagProcessor.Builder()
+                .build();
+        tfod = new TfodProcessor.Builder()
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
         if (USE_WEBCAM) {
@@ -444,10 +478,9 @@ public class MecanumDriveBase extends MecanumDrive {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.addProcessor(aprilTag);
-        builder.addProcessor(processor);
+        builder.addProcessors(dashboard, aprilTag, tfod);
         visionPortal = builder.build();
 
-        FtcDashboard.getInstance().startCameraStream(processor, 0);
+        FtcDashboard.getInstance().startCameraStream(dashboard, 0);
     }
 }
