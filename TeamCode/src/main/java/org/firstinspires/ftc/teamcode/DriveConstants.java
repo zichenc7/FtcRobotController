@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @Config
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.6;
-    public static double ARM_MULTI = 1;
+    public static double ARM_MULTI = 0.5;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_MAX = 1;

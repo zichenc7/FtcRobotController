@@ -378,7 +378,7 @@ public class MecanumDriveBase extends MecanumDrive {
         armMotor.setPower(armPower);
         return armMotor.getCurrentPosition();
     }
-    /*
+
     public double[] motorOp(double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -404,7 +404,7 @@ public class MecanumDriveBase extends MecanumDrive {
 
         return new double[]{frontLeftPower, backLeftPower, frontRightPower, backRightPower};
     }
-    */
+
     public static class CameraStreamProcessor implements VisionProcessor, CameraStreamSource {
         private final AtomicReference<Bitmap> lastFrame =
                 new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));

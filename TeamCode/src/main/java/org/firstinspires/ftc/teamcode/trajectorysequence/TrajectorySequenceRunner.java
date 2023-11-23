@@ -99,7 +99,8 @@ public class TrajectorySequenceRunner {
         DriveSignal driveSignal = null;
 
         TelemetryPacket packet = new TelemetryPacket();
-        Canvas fieldOverlay = packet.fieldOverlay();
+
+        Canvas fieldOverlay = packet.fieldOverlay().drawImage("/sampledata/centerstage.webp", 24, 24, 48, 48);
 
         SequenceSegment currentSegment = null;
 
