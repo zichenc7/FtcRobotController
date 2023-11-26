@@ -18,8 +18,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @Config
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.6;
-    public static double ARM_MULTI = 0.5;
-    // public static double ARM_POWER = 0.5;
+    public static double TURN_MULTI = 0.6;
+    public static double ARM_MULTI = 5;
+    public static double ARM_POWER = 0.5;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_MAX = 1;
@@ -27,6 +28,10 @@ public class DriveConstants {
     public static double ARM_SERVO_MIN = 0;
     public static double ARM_SERVO_MAX = 1;
     public static double ARM_SERVO_INCREMENT = 0.002;
+    public static int ARM_POS_OUTTAKE = 0;
+    public static int ARM_POS_INTAKE = 0;
+    public static double ARM_SERVO_OUTTAKE = 0;
+    public static double ARM_SERVO_INTAKE = 0;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return Math.abs(x) <= DEAD_BAND ? 0 : x;

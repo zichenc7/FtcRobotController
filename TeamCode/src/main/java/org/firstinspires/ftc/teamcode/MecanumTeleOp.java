@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,6 +28,7 @@ public class MecanumTeleOp extends LinearOpMode {
         telemetry.update();
 
         MecanumDriveBase drive = new MecanumDriveBase(hardwareMap);
+        GamepadEx gamepadEx = new GamepadEx(gamepad1);
 
         waitForStart();
         runtime.reset();
@@ -37,13 +38,10 @@ public class MecanumTeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
             double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
-            double rx = deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
+            double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
 
-            // This button choice was made so that it is hard to hit on accident,
-            // it can be freely changed based on preference.
-            // The equivalent button is start on Xbox-style controllers.
             if (gamepad1.start) {
                 drive.imu.resetYaw();
                 sleep(200);
@@ -57,6 +55,18 @@ public class MecanumTeleOp extends LinearOpMode {
                 drive.clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
+            if (gamepadEx.wasJustPressed(GamepadKeys.Button.Y)) {
+                DRIVE_MULTI = DRIVE_MULTI == 0.6 ? 0.3 : 0.6;
+                telemetry.log().add(runtime + "Drive multiplier changed to " + DRIVE_MULTI);
+            }
+            if (gamepad1.x) {
+                drive.armIntakeMacro();
+                telemetry.log().add(runtime + "set to pick up position");
+            }
+            if (gamepad1.y) {
+                drive.armOuttakeMacro();
+                telemetry.log().add(runtime + " set to release position");
+            }
 
             if (gamepad1.left_bumper){
                 drive.armServoModify(-ARM_SERVO_INCREMENT);
@@ -64,12 +74,16 @@ public class MecanumTeleOp extends LinearOpMode {
                 drive.armServoModify(ARM_SERVO_INCREMENT);
             }
 
+            if (armUp > 0 || armDown > 0){
+                drive.armMotorModify(armUp, armDown);
+            }
+
             drive.motorOp(y, x, rx);
             double clawPos = drive.clawOp();
             double armServoPos = drive.armServoOp();
-            double armPos = drive.armOp(armUp, armDown);
+            //double armPos = drive.armOp();
 
-            telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
+            //telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);
             telemetry.addData("Status", "Run Time: " + runtime.toString());

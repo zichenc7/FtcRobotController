@@ -18,8 +18,6 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Config
 @Autonomous
 public class AutonomousOp extends LinearOpMode {
-    public static double DISTANCE = 60; // in
-
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());

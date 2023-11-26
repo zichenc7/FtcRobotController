@@ -1,7 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POWER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_OUTTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
@@ -110,7 +115,7 @@ public class MecanumDriveBase extends MecanumDrive {
     private List<Integer> lastEncVels = new ArrayList<>();
     private double clawPos = CLAW_MIN;
     private double armServoPos = ARM_SERVO_MIN + (ARM_SERVO_MAX-ARM_SERVO_MIN) / 2;
-    //private int armMotorPos = 0;
+    private int armMotorPos;
     private AprilTagProcessor aprilTag;
     private TfodProcessor tfod;
     // add a TensorFlowProcessor at some point
@@ -148,6 +153,10 @@ public class MecanumDriveBase extends MecanumDrive {
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //armMotorPos = armMotor.getCurrentPosition();
+        //armMotor.setPower(ARM_POWER);
+        //armMotor.setTargetPosition(armMotorPos);
         //armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
@@ -392,24 +401,35 @@ public class MecanumDriveBase extends MecanumDrive {
 
     // We need to set this back to like the claw servo control method
     // this is because we need to constantly readjust the claw angle due to gravity pulling it down
-    public double armOp(double armUp, double armDown) {
-        // armPower for future tuning
-        // this has not been tested direction may be messed up.
-        double armPower = armUp + armDown;
-        armMotor.setPower(armPower);
-        /*
+    public double armOp() {
         if (!armMotor.isBusy()){
-            armMotor.setTargetPosition(armMotorPos);
+            //armMotor.setTargetPosition(armMotorPos);
         }
-        */
         return armMotor.getCurrentPosition();
     }
-    /*
+
     public void armMotorModify(double armUp, double armDown) {
         // these values will need to be changed
         armMotorPos += (int)(armUp + armDown);
     }
-     */
+
+    public void armOuttakeMacro() {
+        if (!armMotor.isBusy()) {
+            armMotorPos = ARM_POS_OUTTAKE;
+            armServoPos = ARM_SERVO_OUTTAKE;
+            //armMotor.setTargetPosition(armMotorPos);
+            armServo.setPosition(armServoPos);
+        }
+    }
+    public void armIntakeMacro() {
+        if (!armMotor.isBusy()) {
+            armMotorPos = ARM_POS_INTAKE;
+            armServoPos = ARM_SERVO_INTAKE;
+            //armMotor.setTargetPosition(armMotorPos);
+            armServo.setPosition(armServoPos);
+        }
+    }
+
 
     public double[] motorOp(double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
