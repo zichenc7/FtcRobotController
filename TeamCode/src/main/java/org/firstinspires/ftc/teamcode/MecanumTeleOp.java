@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
+    public double speedMulti = 1;
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -36,9 +37,9 @@ public class MecanumTeleOp extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
-            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
-            double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI;
+            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
+            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
+            double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
 
@@ -55,18 +56,29 @@ public class MecanumTeleOp extends LinearOpMode {
                 drive.clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
-            if (gamepadEx.wasJustPressed(GamepadKeys.Button.Y)) {
-                DRIVE_MULTI = DRIVE_MULTI == 0.6 ? 0.3 : 0.6;
-                telemetry.log().add(runtime + "Drive multiplier changed to " + DRIVE_MULTI);
+            if (gamepad1.y) {
+                if (speedMulti == 1){
+                    speedMulti = 0.25;
+                } else {
+                    speedMulti = 1;
+                }
+                telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
+                sleep(200);
             }
+            /*
             if (gamepad1.x) {
                 drive.armIntakeMacro();
                 telemetry.log().add(runtime + "set to pick up position");
+                sleep(200);
             }
             if (gamepad1.y) {
                 drive.armOuttakeMacro();
                 telemetry.log().add(runtime + " set to release position");
+                sleep(200);
             }
+
+             */
+
 
             if (gamepad1.left_bumper){
                 drive.armServoModify(-ARM_SERVO_INCREMENT);
@@ -74,16 +86,13 @@ public class MecanumTeleOp extends LinearOpMode {
                 drive.armServoModify(ARM_SERVO_INCREMENT);
             }
 
-            if (armUp > 0 || armDown > 0){
-                drive.armMotorModify(armUp, armDown);
-            }
 
             drive.motorOp(y, x, rx);
             double clawPos = drive.clawOp();
             double armServoPos = drive.armServoOp();
-            //double armPos = drive.armOp();
+            double armPos = drive.armOp(armUp, armDown);
 
-            //telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
+            telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);
             telemetry.addData("Status", "Run Time: " + runtime.toString());

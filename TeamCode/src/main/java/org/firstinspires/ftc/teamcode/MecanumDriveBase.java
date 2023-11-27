@@ -113,8 +113,8 @@ public class MecanumDriveBase extends MecanumDrive {
 
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
-    private double clawPos = CLAW_MIN;
-    private double armServoPos = ARM_SERVO_MIN + (ARM_SERVO_MAX-ARM_SERVO_MIN) / 2;
+    private double clawPos = CLAW_MAX;
+    private double armServoPos = ARM_SERVO_MIN;
     private int armMotorPos;
     private AprilTagProcessor aprilTag;
     private TfodProcessor tfod;
@@ -152,19 +152,18 @@ public class MecanumDriveBase extends MecanumDrive {
 
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //armMotorPos = armMotor.getCurrentPosition();
-        //armMotor.setPower(ARM_POWER);
-        //armMotor.setTargetPosition(armMotorPos);
-        //armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotorPos = armMotor.getCurrentPosition();
+
+
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         armServo = hardwareMap.get(Servo.class, "armServo");
-
-        initWebcam(hardwareMap);
-
+        if (USE_WEBCAM) {
+            initWebcam(hardwareMap);
+        }
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
@@ -221,7 +220,6 @@ public class MecanumDriveBase extends MecanumDrive {
                         .build()
         );
     }
-
     public void turn(double angle) {
         turnAsync(angle);
         waitForIdle();
@@ -399,37 +397,39 @@ public class MecanumDriveBase extends MecanumDrive {
         armServoPos += increment;
     }
 
-    // We need to set this back to like the claw servo control method
-    // this is because we need to constantly readjust the claw angle due to gravity pulling it down
-    public double armOp() {
-        if (!armMotor.isBusy()){
-            //armMotor.setTargetPosition(armMotorPos);
-        }
-        return armMotor.getCurrentPosition();
+    public double armOp(double armUp, double armDown) {
+        armMotor.setPower(armUp + armDown);
+        armMotorPos = armMotor.getCurrentPosition();
+        return armMotorPos;
     }
-
+    private void armModeSwitch(){
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(ARM_POWER);
+        while (armMotor.isBusy()){}
+        armMotor.setPower(0);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    /*
     public void armMotorModify(double armUp, double armDown) {
-        // these values will need to be changed
         armMotorPos += (int)(armUp + armDown);
     }
+     */
 
     public void armOuttakeMacro() {
-        if (!armMotor.isBusy()) {
-            armMotorPos = ARM_POS_OUTTAKE;
-            armServoPos = ARM_SERVO_OUTTAKE;
-            //armMotor.setTargetPosition(armMotorPos);
-            armServo.setPosition(armServoPos);
-        }
+        armMotorPos = ARM_POS_OUTTAKE;
+        armServoPos = ARM_SERVO_OUTTAKE;
+        armMotor.setTargetPosition(armMotorPos);
+        armServo.setPosition(armServoPos);
+        armModeSwitch();
     }
     public void armIntakeMacro() {
-        if (!armMotor.isBusy()) {
             armMotorPos = ARM_POS_INTAKE;
             armServoPos = ARM_SERVO_INTAKE;
-            //armMotor.setTargetPosition(armMotorPos);
+            armMotor.setTargetPosition(armMotorPos);
             armServo.setPosition(armServoPos);
-        }
-    }
+            armModeSwitch();
 
+    }
 
     public double[] motorOp(double y, double x, double rx) {
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);

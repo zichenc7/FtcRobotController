@@ -98,14 +98,15 @@ public class TrajectorySequenceRunner {
         Pose2d targetPose = null;
         DriveSignal driveSignal = null;
 
-        TelemetryPacket packet = new TelemetryPacket(false);
+        TelemetryPacket packet = new TelemetryPacket();
 
         Canvas fieldOverlay = packet.fieldOverlay();
+        /*
         fieldOverlay.setAlpha(0.25);
-        fieldOverlay.drawImage("TeamCode/src/main/centerstage.webp", 24, 24, 48, 48);
+        fieldOverlay.drawImage("/java/org/firstinspires/ftc/teamcode/centerstage.webp", 24, 24, 48, 48);
         fieldOverlay.setAlpha(1.0);
         fieldOverlay.drawGrid(0, 0, 144, 144, 7, 7);
-
+        */
         SequenceSegment currentSegment = null;
 
         if (currentTrajectorySequence != null) {
