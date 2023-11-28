@@ -27,7 +27,7 @@ public class AutonomousOpRed extends LinearOpMode {
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180));
 
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                .strafeRight(30)
+                .strafeRight(35)
                 .build();
 
         waitForStart();

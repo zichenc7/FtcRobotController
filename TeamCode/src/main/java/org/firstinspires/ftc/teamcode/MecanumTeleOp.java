@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class MecanumTeleOp extends LinearOpMode {
     public ElapsedTime runtime = new ElapsedTime();
     public double speedMulti = 1;
+    public static boolean opModeIsActive;
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -34,7 +36,10 @@ public class MecanumTeleOp extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        if (isStopRequested()) return;
+        if (isStopRequested()) {
+            opModeIsActive = false;
+            return;
+        }
 
         while (opModeIsActive()) {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
@@ -43,7 +48,7 @@ public class MecanumTeleOp extends LinearOpMode {
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
 
-            if (gamepad1.start) {
+            if (gamepad1.start && gamepad1.dpad_up) {
                 drive.imu.resetYaw();
                 sleep(200);
                 telemetry.log().add(runtime + " IMU reset");
@@ -65,6 +70,7 @@ public class MecanumTeleOp extends LinearOpMode {
                 telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
                 sleep(200);
             }
+
             /*
             if (gamepad1.x) {
                 drive.armIntakeMacro();
@@ -100,4 +106,5 @@ public class MecanumTeleOp extends LinearOpMode {
         }
         drive.visionPortal.close();
     }
+
 }

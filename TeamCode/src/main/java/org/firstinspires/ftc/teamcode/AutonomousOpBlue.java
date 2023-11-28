@@ -27,7 +27,7 @@ public class AutonomousOpBlue extends LinearOpMode {
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
 
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                .strafeLeft(30)
+                .strafeLeft(35)
                 .build();
 
         waitForStart();

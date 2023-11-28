@@ -18,6 +18,7 @@ import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.DriveConstants;
+import org.firstinspires.ftc.teamcode.TelemetryPacketV2;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.SequenceSegment;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TrajectorySegment;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TurnSegment;
@@ -98,15 +99,10 @@ public class TrajectorySequenceRunner {
         Pose2d targetPose = null;
         DriveSignal driveSignal = null;
 
-        TelemetryPacket packet = new TelemetryPacket();
+        TelemetryPacketV2 packet = new TelemetryPacketV2();
 
         Canvas fieldOverlay = packet.fieldOverlay();
-        /*
-        fieldOverlay.setAlpha(0.25);
-        fieldOverlay.drawImage("/java/org/firstinspires/ftc/teamcode/centerstage.webp", 24, 24, 48, 48);
-        fieldOverlay.setAlpha(1.0);
-        fieldOverlay.drawGrid(0, 0, 144, 144, 7, 7);
-        */
+
         SequenceSegment currentSegment = null;
 
         if (currentTrajectorySequence != null) {

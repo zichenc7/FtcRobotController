@@ -1,28 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POWER;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_OUTTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
-import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
-import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ANG_ACCEL;
-import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_ANG_VEL;
-import static org.firstinspires.ftc.teamcode.DriveConstants.MAX_VEL;
-import static org.firstinspires.ftc.teamcode.DriveConstants.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.teamcode.DriveConstants.RUN_USING_ENCODER;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-import static org.firstinspires.ftc.teamcode.DriveConstants.encoderTicksToInches;
-import static org.firstinspires.ftc.teamcode.DriveConstants.kA;
-import static org.firstinspires.ftc.teamcode.DriveConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 import static java.lang.Thread.sleep;
 
 import android.graphics.Bitmap;
@@ -48,6 +26,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -76,10 +56,9 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import static org.firstinspires.ftc.teamcode.MecanumTeleOp.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /*
@@ -152,8 +131,8 @@ public class MecanumDriveBase extends MecanumDrive {
 
         armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotorPos = armMotor.getCurrentPosition();
 
 
@@ -398,22 +377,23 @@ public class MecanumDriveBase extends MecanumDrive {
     }
 
     public double armOp(double armUp, double armDown) {
-        armMotor.setPower(armUp + armDown);
+        double armPower = armUp + armDown;
+        if (armPower < 0 && armMotorPos < ARM_MIN) {
+            return armMotorPos;
+        } else if (armPower > 0 && armMotorPos > ARM_MAX) {
+            return armMotorPos;
+        }
+        armMotor.setPower(armPower);
         armMotorPos = armMotor.getCurrentPosition();
         return armMotorPos;
     }
     private void armModeSwitch(){
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(ARM_POWER);
-        while (armMotor.isBusy()){}
+        while (armMotor.isBusy() && opModeIsActive) {}
         armMotor.setPower(0);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    /*
-    public void armMotorModify(double armUp, double armDown) {
-        armMotorPos += (int)(armUp + armDown);
-    }
-     */
 
     public void armOuttakeMacro() {
         armMotorPos = ARM_POS_OUTTAKE;
