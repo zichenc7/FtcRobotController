@@ -1,27 +1,10 @@
 package org.firstinspires.ftc.teamcode;
-
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POWER;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SCALE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_OUTTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
-import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
-import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-import static java.lang.Thread.sleep;
+import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -85,24 +68,34 @@ public abstract class OpModeBase extends LinearOpMode {
         armServoPos += increment;
     }
 
-    public double armOp() {
+    public double armOp(double armUp, double armDown) {
+        double armPower = armUp + armDown;
+        int curPos = drive.armMotor.getCurrentPosition();
+        int targetPos = armMotorPos;
 
-        if (armMotorPos < ARM_MIN) {
-            armMotorPos = ARM_MIN;
-        } else if (armMotorPos > ARM_MAX) {
-            armMotorPos = ARM_MAX;
+        if (curPos < ARM_MIN && armPower < 0) {
+            targetPos = ARM_MIN;
+        } else if (curPos > ARM_MAX && armPower > 0) {
+            targetPos = ARM_MAX;
+        } else if(armPower != 0) {
+            drive.armMotor.setPower(armPower);
+            return armPosition();
+        } else if (!(percentDifference(targetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
+            return curPos;
         }
-
-        drive.armMotor.setTargetPosition(armMotorPos);
+        drive.armMotor.setTargetPosition(targetPos);
         armModeSwitch();
-        armMotorPos = drive.armMotor.getCurrentPosition();
-        return armMotorPos;
+        return armPosition();
     }
 
+
+    /*
     public void armModify(double armUp, double armDown) {
         armMotorPos += (int) ((armUp + armDown) * ARM_SCALE);
         telemetry.addData("aaa", armMotorPos + " " + " " + armUp + " " + " " + armDown);
     }
+
+    */
 
     private void armModeSwitch(){
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -118,6 +111,7 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.armMotor.setTargetPosition(armMotorPos);
         drive.armServo.setPosition(armServoPos);
         armModeSwitch();
+        armPosition();
     }
     public void armIntakeMacro() {
         armMotorPos = ARM_POS_INTAKE;
@@ -125,7 +119,12 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.armMotor.setTargetPosition(armMotorPos);
         drive.armServo.setPosition(armServoPos);
         armModeSwitch();
+        armPosition();
+    }
 
+    public int armPosition(){
+        armMotorPos = drive.armMotor.getCurrentPosition();
+        return armMotorPos;
     }
 
     public double[] motorOp(double y, double x, double rx) {

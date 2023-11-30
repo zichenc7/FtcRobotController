@@ -92,14 +92,10 @@ public class MecanumTeleOp extends OpModeBase {
             }
 
 
-            armModify(armUp, armDown);
-
-
-
             motorOp(y, x, rx);
             double clawPos = clawOp();
             double armServoPos = armServoOp();
-            double armPos = armOp();
+            double armPos = armOp(armUp, armDown);
 
             telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);

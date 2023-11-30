@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -20,8 +22,10 @@ public class DriveConstants {
     public static double DRIVE_MULTI = 0.5;
     public static double TURN_MULTI = 0.4;
     public static double ARM_MULTI = 0.5;
+    //speed of macro movements
     public static double ARM_POWER = 0.5;
-    public static int ARM_SCALE = 500;
+    // as a percentage
+    public static double ARM_READJUSTMENT_TOLERANCE = 5;
     public static int ARM_MIN = 0;
     public static int ARM_MAX = 2000;
     public static double DRONE_LAUNCH_POS = 0;
@@ -37,7 +41,10 @@ public class DriveConstants {
     public static double ARM_SERVO_INTAKE = 0.72400;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
-        return Math.abs(x) <= DEAD_BAND ? 0 : x;
+        return abs(x) <= DEAD_BAND ? 0 : x;
+    }
+    public static double percentDifference(double target, double current) {
+        return abs((target - current / target) * 100);
     }
     public static boolean USE_WEBCAM = false;
 
