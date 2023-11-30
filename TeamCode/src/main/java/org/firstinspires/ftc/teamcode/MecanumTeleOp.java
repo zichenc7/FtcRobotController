@@ -16,28 +16,27 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 // 192.168.43.1:8080/dash
 @Config
 @TeleOp
-public class MecanumTeleOp extends LinearOpMode {
+public class MecanumTeleOp extends OpModeBase {
     public ElapsedTime runtime = new ElapsedTime();
     public double speedMulti = 1;
-    public static boolean opModeIsActive;
+
+
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-
+        drive = new MecanumDriveBase(hardwareMap);
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
         telemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
         telemetry.update();
 
-        MecanumDriveBase drive = new MecanumDriveBase(hardwareMap);
         GamepadEx gamepadEx = new GamepadEx(gamepad1);
 
         waitForStart();
         runtime.reset();
 
         if (isStopRequested()) {
-            opModeIsActive = false;
             return;
         }
 
@@ -54,11 +53,11 @@ public class MecanumTeleOp extends LinearOpMode {
                 telemetry.log().add(runtime + " IMU reset");
             }
             if (gamepad1.back) {
-               drive.launchDrone();
+               launchDrone();
                telemetry.log().add(runtime + " Drone launched");
             }
             if (gamepad1.a) {
-                drive.clawModify();
+                clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
             if (gamepad1.y) {
@@ -87,16 +86,20 @@ public class MecanumTeleOp extends LinearOpMode {
 
 
             if (gamepad1.left_bumper){
-                drive.armServoModify(-ARM_SERVO_INCREMENT);
+                armServoModify(-ARM_SERVO_INCREMENT);
             } else if (gamepad1.right_bumper) {
-                drive.armServoModify(ARM_SERVO_INCREMENT);
+                armServoModify(ARM_SERVO_INCREMENT);
             }
 
 
-            drive.motorOp(y, x, rx);
-            double clawPos = drive.clawOp();
-            double armServoPos = drive.armServoOp();
-            double armPos = drive.armOp(armUp, armDown);
+            armModify(armUp, armDown);
+
+
+
+            motorOp(y, x, rx);
+            double clawPos = clawOp();
+            double armServoPos = armServoOp();
+            double armPos = armOp();
 
             telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
@@ -104,7 +107,7 @@ public class MecanumTeleOp extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
-        drive.visionPortal.close();
+        visionPortal.close();
     }
 
 }

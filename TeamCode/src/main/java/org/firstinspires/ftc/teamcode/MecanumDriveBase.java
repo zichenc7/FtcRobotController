@@ -56,7 +56,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import static org.firstinspires.ftc.teamcode.MecanumTeleOp.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -82,9 +81,9 @@ public class MecanumDriveBase extends MecanumDrive {
 
     private TrajectoryFollower follower;
 
-    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
-    private DcMotor armMotor;
-    private Servo droneLaunchServo, clawServo, armServo;
+    public DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    public DcMotor armMotor;
+    public Servo droneLaunchServo, clawServo, armServo;
     private List<DcMotorEx> motors;
 
     public IMU imu;
@@ -92,13 +91,6 @@ public class MecanumDriveBase extends MecanumDrive {
 
     private List<Integer> lastEncPositions = new ArrayList<>();
     private List<Integer> lastEncVels = new ArrayList<>();
-    private double clawPos = CLAW_MAX;
-    private double armServoPos = ARM_SERVO_MIN;
-    private int armMotorPos;
-    private AprilTagProcessor aprilTag;
-    private TfodProcessor tfod;
-    // add a TensorFlowProcessor at some point
-    public VisionPortal visionPortal;
 
     public MecanumDriveBase(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -133,16 +125,11 @@ public class MecanumDriveBase extends MecanumDrive {
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armMotorPos = armMotor.getCurrentPosition();
-
-
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         armServo = hardwareMap.get(Servo.class, "armServo");
-        if (USE_WEBCAM) {
-            initWebcam(hardwareMap);
-        }
+
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
@@ -199,6 +186,7 @@ public class MecanumDriveBase extends MecanumDrive {
                         .build()
         );
     }
+
     public void turn(double angle) {
         turnAsync(angle);
         waitForIdle();
@@ -342,145 +330,5 @@ public class MecanumDriveBase extends MecanumDrive {
 
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
-    }
-    public void launchDrone() throws InterruptedException {
-        // the position ranges from [0,1]
-        // 0 is min, 0.5 is midpoint, 1 is max
-        // double check to see if this is true for the servo we're using
-        // modify position when needed
-        droneLaunchServo.setPosition(DRONE_LAUNCH_POS);
-        sleep(500);
-        droneLaunchServo.setPosition(DRONE_REST_POS);
-        sleep(500);
-    }
-    public double clawOp() {
-        clawPos = Range.clip(clawPos, CLAW_MIN, CLAW_MAX);
-        clawServo.setPosition(clawPos);
-        return clawPos;
-    }
-    public void clawModify() throws InterruptedException {
-        if (clawPos == CLAW_MIN){
-            clawPos = CLAW_MAX;
-        } else if(clawPos == CLAW_MAX){
-            clawPos = CLAW_MIN;
-        }
-        sleep(200);
-    }
-
-    public double armServoOp() {
-        armServoPos = Range.clip(armServoPos, ARM_SERVO_MIN, ARM_SERVO_MAX);
-        armServo.setPosition(armServoPos);
-        return armServoPos;
-    }
-    public void armServoModify(double increment){
-        armServoPos += increment;
-    }
-
-    public double armOp(double armUp, double armDown) {
-        double armPower = armUp + armDown;
-        if (armPower < 0 && armMotorPos < ARM_MIN) {
-            return armMotorPos;
-        } else if (armPower > 0 && armMotorPos > ARM_MAX) {
-            return armMotorPos;
-        }
-        armMotor.setPower(armPower);
-        armMotorPos = armMotor.getCurrentPosition();
-        return armMotorPos;
-    }
-    private void armModeSwitch(){
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(ARM_POWER);
-        while (armMotor.isBusy() && opModeIsActive) {}
-        armMotor.setPower(0);
-        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public void armOuttakeMacro() {
-        armMotorPos = ARM_POS_OUTTAKE;
-        armServoPos = ARM_SERVO_OUTTAKE;
-        armMotor.setTargetPosition(armMotorPos);
-        armServo.setPosition(armServoPos);
-        armModeSwitch();
-    }
-    public void armIntakeMacro() {
-            armMotorPos = ARM_POS_INTAKE;
-            armServoPos = ARM_SERVO_INTAKE;
-            armMotor.setTargetPosition(armMotorPos);
-            armServo.setPosition(armServoPos);
-            armModeSwitch();
-
-    }
-
-    public double[] motorOp(double y, double x, double rx) {
-        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
-        // Rotate the movement direction counter to the bot's rotation
-        double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-        double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
-
-        rotX = rotX * 1.1;  // Counteract imperfect strafing
-
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio,
-        // but only if at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frontLeftPower = (rotY + rotX + rx) / denominator;
-        double backLeftPower = (rotY - rotX + rx) / denominator;
-        double frontRightPower = (rotY - rotX - rx) / denominator;
-        double backRightPower = (rotY + rotX - rx) / denominator;
-
-        leftFront.setPower(frontLeftPower);
-        leftRear.setPower(backLeftPower);
-        rightFront.setPower(frontRightPower);
-        rightRear.setPower(backRightPower);
-
-        return new double[]{frontLeftPower, backLeftPower, frontRightPower, backRightPower};
-    }
-
-    public static class CameraStreamProcessor implements VisionProcessor, CameraStreamSource {
-        private final AtomicReference<Bitmap> lastFrame =
-                new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
-
-        @Override
-        public void init(int width, int height, CameraCalibration calibration) {
-            lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
-        }
-
-        @Override
-        public Object processFrame(Mat frame, long captureTimeNanos) {
-            Bitmap b = Bitmap.createBitmap(frame.width(), frame.height(), Bitmap.Config.RGB_565);
-            Utils.matToBitmap(frame, b);
-            lastFrame.set(b);
-            return null;
-        }
-
-        @Override
-        public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight,
-                                float scaleBmpPxToCanvasPx, float scaleCanvasDensity,
-                                Object userContext) {
-            // do nothing
-        }
-
-        @Override
-        public void getFrameBitmap(Continuation<? extends Consumer<Bitmap>> continuation) {
-            continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
-        }
-    }
-    private void initWebcam(HardwareMap hardwareMap){
-        final CameraStreamProcessor dashboard = new CameraStreamProcessor();
-        aprilTag = new AprilTagProcessor.Builder()
-                .build();
-        tfod = new TfodProcessor.Builder()
-                .build();
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-        if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
-        }
-        builder.addProcessors(dashboard, aprilTag, tfod);
-        visionPortal = builder.build();
-
-        FtcDashboard.getInstance().startCameraStream(dashboard, 0);
     }
 }

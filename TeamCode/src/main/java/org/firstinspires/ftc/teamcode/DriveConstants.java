@@ -21,8 +21,9 @@ public class DriveConstants {
     public static double TURN_MULTI = 0.4;
     public static double ARM_MULTI = 0.5;
     public static double ARM_POWER = 0.5;
-    public static double ARM_MIN = 0;
-    public static double ARM_MAX = 2000;
+    public static int ARM_SCALE = 500;
+    public static int ARM_MIN = 0;
+    public static int ARM_MAX = 2000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_MAX = 1;

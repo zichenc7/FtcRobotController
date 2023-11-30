@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -18,11 +20,16 @@ import java.nio.file.attribute.FileTime;
  */
 @Config
 @Autonomous
-public class AutonomousOpRed extends LinearOpMode {
+public class AutonomousOpRed extends OpModeBase {
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        MecanumDriveBase drive = new MecanumDriveBase(hardwareMap);
+
+        if (USE_WEBCAM) {
+            initWebcam(hardwareMap);
+        }
+        drive = new MecanumDriveBase(hardwareMap);
+
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180));
 
@@ -43,6 +50,6 @@ public class AutonomousOpRed extends LinearOpMode {
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;
-        drive.visionPortal.close();
+        visionPortal.close();
     }
 }

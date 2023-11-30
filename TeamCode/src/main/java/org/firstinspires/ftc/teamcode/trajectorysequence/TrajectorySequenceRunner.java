@@ -99,7 +99,7 @@ public class TrajectorySequenceRunner {
         Pose2d targetPose = null;
         DriveSignal driveSignal = null;
 
-        TelemetryPacketV2 packet = new TelemetryPacketV2();
+        TelemetryPacket packet = new TelemetryPacketV2();
 
         Canvas fieldOverlay = packet.fieldOverlay();
 
