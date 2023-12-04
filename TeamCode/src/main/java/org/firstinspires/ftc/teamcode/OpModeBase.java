@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.android.Utils;
@@ -31,9 +32,12 @@ public abstract class OpModeBase extends LinearOpMode {
     private double clawPos = CLAW_MAX;
     private double armServoPos = ARM_SERVO_MIN;
     private int armMotorPos;
+
+    // auto attributes
     private AprilTagProcessor aprilTag;
     private TfodProcessor tfod;
     public VisionPortal visionPortal;
+    public AprilTagDetection desiredTag;
 
     public void launchDrone() throws InterruptedException {
         // the position ranges from [0,1]

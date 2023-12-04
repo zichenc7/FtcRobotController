@@ -14,16 +14,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /*
- * This is a simple routine to test translational drive capabilities.
+main work will be done here
+
  */
 @Config
 @Autonomous
 
 public class AutonomousOpBlue extends OpModeBase {
+
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-
         drive = new MecanumDriveBase(hardwareMap);
 
         if (USE_WEBCAM) {
@@ -32,7 +33,7 @@ public class AutonomousOpBlue extends OpModeBase {
 
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
 
-        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+        Trajectory trajectory = drive.trajectoryBuilder(startPose)
                 .strafeLeft(40)
                 .build();
 
@@ -41,6 +42,8 @@ public class AutonomousOpBlue extends OpModeBase {
         if (isStopRequested()) return;
 
         drive.followTrajectory(trajectory);
+
+
 
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());

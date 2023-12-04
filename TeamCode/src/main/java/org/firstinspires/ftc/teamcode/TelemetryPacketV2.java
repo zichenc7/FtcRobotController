@@ -23,7 +23,7 @@ public class TelemetryPacketV2 extends TelemetryPacket{
     }
 
     public TelemetryPacketV2(boolean drawDefaultField) {
-        super();
+        super(false);
         fieldOverlay = new Canvas();
 
         if (drawDefaultField) {
