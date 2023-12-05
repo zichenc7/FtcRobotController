@@ -20,7 +20,6 @@ public class MecanumTeleOp extends OpModeBase {
     public ElapsedTime runtime = new ElapsedTime();
     public double speedMulti = 1;
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -47,7 +46,7 @@ public class MecanumTeleOp extends OpModeBase {
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
 
-            if (gamepad1.start && gamepad1.dpad_up) {
+            if (gamepad1.start) {
                 drive.imu.resetYaw();
                 sleep(200);
                 telemetry.log().add(runtime + " IMU reset");

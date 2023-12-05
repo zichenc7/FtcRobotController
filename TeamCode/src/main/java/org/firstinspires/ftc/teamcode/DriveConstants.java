@@ -26,8 +26,8 @@ public class DriveConstants {
     public static double ARM_POWER = 0.5;
     // as a percentage
     public static double ARM_READJUSTMENT_TOLERANCE = 5;
-    public static int ARM_MIN = 0;
-    public static int ARM_MAX = 2000;
+    public static int ARM_MIN = -1;
+    public static int ARM_MAX = 1850;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_MAX = 1;
@@ -35,9 +35,9 @@ public class DriveConstants {
     public static double ARM_SERVO_MIN = 0;
     public static double ARM_SERVO_MAX = 1;
     public static double ARM_SERVO_INCREMENT = 0.002;
-    public static int ARM_POS_OUTTAKE = 0;
+    public static int ARM_POS_OUTPUT = 0;
     public static int ARM_POS_INTAKE = 0;
-    public static double ARM_SERVO_OUTTAKE = 0.30200;
+    public static double ARM_SERVO_OUTPUT = 0.30200;
     public static double ARM_SERVO_INTAKE = 0.72400;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
@@ -47,6 +47,11 @@ public class DriveConstants {
         return abs((target - current / target) * 100);
     }
     public static boolean USE_WEBCAM = false;
+
+    public static int EXPOSURE_MS = 6;
+    public static int GAIN = 250;
+    // to be determined
+    public static int DESIRED_DISTANCE = 0;
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!

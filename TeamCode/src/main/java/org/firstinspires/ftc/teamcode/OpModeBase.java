@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -14,17 +15,22 @@ import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
@@ -77,9 +83,9 @@ public abstract class OpModeBase extends LinearOpMode {
         int curPos = drive.armMotor.getCurrentPosition();
         int targetPos = armMotorPos;
 
-        if (curPos < ARM_MIN && armPower < 0) {
+        if (curPos <= ARM_MIN && armPower < 0) {
             targetPos = ARM_MIN;
-        } else if (curPos > ARM_MAX && armPower > 0) {
+        } else if (curPos >= ARM_MAX && armPower > 0) {
             targetPos = ARM_MAX;
         } else if(armPower != 0) {
             drive.armMotor.setPower(armPower);
@@ -109,9 +115,9 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void armOuttakeMacro() {
-        armMotorPos = ARM_POS_OUTTAKE;
-        armServoPos = ARM_SERVO_OUTTAKE;
+    public void armOutputMacro() {
+        armMotorPos = ARM_POS_OUTPUT;
+        armServoPos = ARM_SERVO_OUTPUT;
         drive.armMotor.setTargetPosition(armMotorPos);
         drive.armServo.setPosition(armServoPos);
         armModeSwitch();
@@ -189,6 +195,7 @@ public abstract class OpModeBase extends LinearOpMode {
     public void initWebcam(HardwareMap hardwareMap){
         final CameraStreamProcessor dashboard = new CameraStreamProcessor();
         aprilTag = new AprilTagProcessor.Builder()
+                .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .build();
         tfod = new TfodProcessor.Builder()
                 .build();
@@ -202,6 +209,55 @@ public abstract class OpModeBase extends LinearOpMode {
         visionPortal = builder.build();
 
         FtcDashboard.getInstance().startCameraStream(dashboard, 0);
+
+        // Exposure Settings:
+
+        ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
+        if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
+            exposureControl.setMode(ExposureControl.Mode.Manual);
+            sleep(50);
+        }
+        exposureControl.setExposure((long)EXPOSURE_MS, TimeUnit.MILLISECONDS);
+        sleep(20);
+        GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
+        gainControl.setGain(GAIN);
+        sleep(20);
+    }
+
+    public Pose2d driveToTargetTag(Pose2d currentPose) {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+
+        boolean targetFound = false;
+        AprilTagDetection targetTag;
+
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.metadata != null) {
+                if (detection.id == desiredTag.id) {
+                    targetFound = true;
+                    desiredTag = detection;
+                    break;
+                }
+            }
+        }
+
+        if(targetFound){
+            // these values are completely unrelated to creating a pose
+            // math might be needed to be done.
+            // look at this https://ftc-docs.firstinspires.org/en/latest/apriltag/understanding_apriltag_detection_values/understanding-apriltag-detection-values.html
+
+            double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
+            double percentRange = rangeError / desiredTag.ftcPose.range;
+
+            // this needs a lot of testing
+
+            double headingError    = desiredTag.ftcPose.bearing;
+            double horizontalError = desiredTag.ftcPose.x * percentRange;
+            double verticalError = desiredTag.ftcPose.y * percentRange;
+
+
+            return currentPose.plus(new Pose2d(horizontalError, verticalError, Math.toRadians(headingError)));
+        }
+        return null;
     }
 }
 
