@@ -228,13 +228,13 @@ public abstract class OpModeBase extends LinearOpMode {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
         boolean targetFound = false;
-        AprilTagDetection targetTag;
+        AprilTagDetection targetTag = null;
 
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
                 if (detection.id == desiredTag.id) {
                     targetFound = true;
-                    desiredTag = detection;
+                    targetTag = detection;
                     break;
                 }
             }
@@ -245,14 +245,14 @@ public abstract class OpModeBase extends LinearOpMode {
             // math might be needed to be done.
             // look at this https://ftc-docs.firstinspires.org/en/latest/apriltag/understanding_apriltag_detection_values/understanding-apriltag-detection-values.html
 
-            double  rangeError      = (desiredTag.ftcPose.range - DESIRED_DISTANCE);
-            double percentRange = rangeError / desiredTag.ftcPose.range;
+            double  rangeError      = (targetTag.ftcPose.range - DESIRED_DISTANCE);
+            double percentRange = rangeError / targetTag.ftcPose.range;
 
             // this needs a lot of testing
 
-            double headingError    = desiredTag.ftcPose.bearing;
-            double horizontalError = desiredTag.ftcPose.x * percentRange;
-            double verticalError = desiredTag.ftcPose.y * percentRange;
+            double headingError    = targetTag.ftcPose.bearing;
+            double horizontalError = targetTag.ftcPose.x * percentRange;
+            double verticalError = targetTag.ftcPose.y * percentRange;
 
 
             return currentPose.plus(new Pose2d(horizontalError, verticalError, Math.toRadians(headingError)));

@@ -51,8 +51,8 @@ public class DriveConstants {
     public static int EXPOSURE_MS = 6;
     public static int GAIN = 250;
     // to be determined
-    public static int DESIRED_DISTANCE = 0;
-
+    public static int DESIRED_DISTANCE = 10;
+    public static String IMAGE_PATH = "/java/org/firstinspires/ftc/teamcode/centerstage.webp";
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
 

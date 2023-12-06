@@ -31,6 +31,8 @@ public class AutonomousOpBlue extends OpModeBase {
             initWebcam(hardwareMap);
         }
 
+        // use tensorflow to identify the position
+
         Pose2d startPose = new Pose2d(0, 0, Math.toRadians(0));
 
         Trajectory trajectory = drive.trajectoryBuilder(startPose)
@@ -42,6 +44,21 @@ public class AutonomousOpBlue extends OpModeBase {
         if (isStopRequested()) return;
 
         drive.followTrajectory(trajectory);
+
+        Pose2d aprilTagPose = driveToTargetTag(trajectory.end());
+        if (aprilTagPose == null) {
+            aprilTagPose = trajectory.end();
+        }
+        Trajectory aprilTag = drive.trajectoryBuilder(trajectory.end())
+                .lineToSplineHeading(aprilTagPose)
+                .addDisplacementMarker(() -> {
+                    // insert macros here
+                })
+                .build();
+
+
+
+        drive.followTrajectory(aprilTag);
 
 
 
