@@ -43,7 +43,10 @@ public abstract class OpModeBase extends LinearOpMode {
     private AprilTagProcessor aprilTag;
     private TfodProcessor tfod;
     public VisionPortal visionPortal;
-    public AprilTagDetection desiredTag;
+    private static final String[] LABELS = {
+            "Pixel",
+    };
+    // https://ftc-docs.firstinspires.org/en/latest/ftc_ml/index.html
 
     public void launchDrone() throws InterruptedException {
         // the position ranges from [0,1]
@@ -196,8 +199,16 @@ public abstract class OpModeBase extends LinearOpMode {
         final CameraStreamProcessor dashboard = new CameraStreamProcessor();
         aprilTag = new AprilTagProcessor.Builder()
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
+                .setDrawTagID(true)
+                .setDrawTagOutline(true)
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
                 .build();
+
         tfod = new TfodProcessor.Builder()
+                // use ASSET_NAME if it is an asset?
+                .setModelFileName(TFOD_MODEL_FILE)
+                .setModelLabels(LABELS)
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
         if (USE_WEBCAM) {
@@ -224,15 +235,16 @@ public abstract class OpModeBase extends LinearOpMode {
         sleep(20);
     }
 
-    public Pose2d driveToTargetTag(Pose2d currentPose) {
+    public Pose2d driveToTargetTag(int desiredTagId) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
         boolean targetFound = false;
         AprilTagDetection targetTag = null;
+        Pose2d tagPose = new Pose2d();
 
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-                if (detection.id == desiredTag.id) {
+                if (detection.id == desiredTagId) {
                     targetFound = true;
                     targetTag = detection;
                     break;
@@ -255,9 +267,14 @@ public abstract class OpModeBase extends LinearOpMode {
             double verticalError = targetTag.ftcPose.y * percentRange;
 
 
-            return currentPose.plus(new Pose2d(horizontalError, verticalError, Math.toRadians(headingError)));
+            tagPose = new Pose2d(horizontalError, verticalError, Math.toRadians(headingError));
         }
-        return null;
+        return tagPose;
     }
+    public int getPropPos(){
+        return 0;
+    }
+
+
 }
 

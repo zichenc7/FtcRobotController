@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.RED_START_X;
+import static org.firstinspires.ftc.teamcode.DriveConstants.RED_START_Y;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -31,10 +33,15 @@ public class AutonomousOpRed extends OpModeBase {
         drive = new MecanumDriveBase(hardwareMap);
 
 
-        Pose2d startPose = new Pose2d(0, 0, Math.toRadians(180));
+        Pose2d startPose = new Pose2d(RED_START_X, RED_START_Y, Math.toRadians(90));
+        drive.setPoseEstimate(startPose);
 
-        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+        Trajectory trajectory = drive.trajectoryBuilder(startPose)
                 .strafeRight(40)
+                .addTemporalMarker(100, () -> {
+                    // This marker runs two seconds into the trajectory
+                    // Run your action in here!
+                })
                 .build();
 
         waitForStart();

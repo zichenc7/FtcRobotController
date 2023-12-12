@@ -52,7 +52,15 @@ public class DriveConstants {
     public static int GAIN = 250;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
-    public static String IMAGE_PATH = "/java/org/firstinspires/ftc/teamcode/centerstage.webp";
+    public static String IMAGE_PATH = "/images/centerstage.webp";
+    public static String TFOD_MODEL_ASSET = "CenterStage.tflite";
+    public static String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/CenterStage.tflite";
+
+    public static double BLUE_START_X = 11.375;
+    public static double BLUE_START_Y = 63;
+    public static double RED_START_X = 11.375;
+    public static double RED_START_Y = -63;
+
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
 
