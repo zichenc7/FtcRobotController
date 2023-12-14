@@ -5,12 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -34,15 +36,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
-    MecanumDriveBase drive;
+    public Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+    public MecanumDriveBase drive;
     private double clawPos = CLAW_MAX;
     private double armServoPos = ARM_SERVO_MIN;
-    private int armMotorPos;
+    public int armTargetPos = ARM_MIN;
 
     // auto attributes
     private AprilTagProcessor aprilTag;
     private TfodProcessor tfod;
     public VisionPortal visionPortal;
+
     private static final String[] LABELS = {
             "Pixel",
     };
@@ -81,24 +85,25 @@ public abstract class OpModeBase extends LinearOpMode {
         armServoPos += increment;
     }
 
-    public double armOp(double armUp, double armDown) {
+    public int armOp(double armUp, double armDown) {
         double armPower = armUp + armDown;
         int curPos = drive.armMotor.getCurrentPosition();
-        int targetPos = armMotorPos;
 
         if (curPos <= ARM_MIN && armPower < 0) {
-            targetPos = ARM_MIN;
+            armTargetPos = ARM_MIN;
         } else if (curPos >= ARM_MAX && armPower > 0) {
-            targetPos = ARM_MAX;
+            armTargetPos = ARM_MAX;
         } else if(armPower != 0) {
             drive.armMotor.setPower(armPower);
-            return armPosition();
-        } else if (!(percentDifference(targetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
+            armTargetPos = curPos;
+            return curPos;
+        } else if(!(percentDifference(armTargetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
             return curPos;
         }
-        drive.armMotor.setTargetPosition(targetPos);
+
+        drive.armMotor.setTargetPosition(armTargetPos);
         armModeSwitch();
-        return armPosition();
+        return curPos;
     }
 
 
@@ -119,25 +124,18 @@ public abstract class OpModeBase extends LinearOpMode {
     }
 
     public void armOutputMacro() {
-        armMotorPos = ARM_POS_OUTPUT;
+        armTargetPos = ARM_POS_OUTPUT;
         armServoPos = ARM_SERVO_OUTPUT;
-        drive.armMotor.setTargetPosition(armMotorPos);
+        drive.armMotor.setTargetPosition(armTargetPos);
         drive.armServo.setPosition(armServoPos);
         armModeSwitch();
-        armPosition();
     }
     public void armIntakeMacro() {
-        armMotorPos = ARM_POS_INTAKE;
+        armTargetPos = ARM_POS_INTAKE;
         armServoPos = ARM_SERVO_INTAKE;
-        drive.armMotor.setTargetPosition(armMotorPos);
+        drive.armMotor.setTargetPosition(armTargetPos);
         drive.armServo.setPosition(armServoPos);
         armModeSwitch();
-        armPosition();
-    }
-
-    public int armPosition(){
-        armMotorPos = drive.armMotor.getCurrentPosition();
-        return armMotorPos;
     }
 
     public double[] motorOp(double y, double x, double rx) {

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.RED_START_X;
-import static org.firstinspires.ftc.teamcode.DriveConstants.RED_START_Y;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -23,6 +21,8 @@ import java.nio.file.attribute.FileTime;
 @Config
 @Autonomous
 public class AutonomousOpRed extends OpModeBase {
+    public static double RED_START_X = 11.375;
+    public static double RED_START_Y = -63;
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());

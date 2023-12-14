@@ -4,10 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -22,7 +19,6 @@ public class MecanumTeleOp extends OpModeBase {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
@@ -94,9 +90,11 @@ public class MecanumTeleOp extends OpModeBase {
             motorOp(y, x, rx);
             double clawPos = clawOp();
             double armServoPos = armServoOp();
-            double armPos = armOp(armUp, armDown);
+            int armPower = armOp(armUp, armDown);
 
-            telemetry.addData("Arm", "Arm Motor position: (%.2f)", armPos);
+            telemetry.addData("Arm", "Motor Power: (%.2f)", armPower);
+            telemetry.addData("Arm", "Motor target:" + armTargetPos);
+            telemetry.addData("Arm", "Motor target:" + drive.armMotor.getCurrentPosition());
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);
             telemetry.addData("Status", "Run Time: " + runtime.toString());

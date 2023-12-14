@@ -25,8 +25,8 @@ public class DriveConstants {
     //speed of macro movements
     public static double ARM_POWER = 0.5;
     // as a percentage
-    public static double ARM_READJUSTMENT_TOLERANCE = 5;
-    public static int ARM_MIN = -1;
+    public static double ARM_READJUSTMENT_TOLERANCE = 20;
+    public static int ARM_MIN = 0;
     public static int ARM_MAX = 1850;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
@@ -55,11 +55,6 @@ public class DriveConstants {
     public static String IMAGE_PATH = "/images/centerstage.webp";
     public static String TFOD_MODEL_ASSET = "CenterStage.tflite";
     public static String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/CenterStage.tflite";
-
-    public static double BLUE_START_X = 11.375;
-    public static double BLUE_START_Y = 63;
-    public static double RED_START_X = 11.375;
-    public static double RED_START_Y = -63;
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!

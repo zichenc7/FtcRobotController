@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.BLUE_START_X;
-import static org.firstinspires.ftc.teamcode.DriveConstants.BLUE_START_Y;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -26,6 +24,8 @@ main work will be done here
 
 public class AutonomousOpBlue extends OpModeBase {
 
+    public static double BLUE_START_X = 11.375;
+    public static double BLUE_START_Y = 63;
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -42,10 +42,6 @@ public class AutonomousOpBlue extends OpModeBase {
 
         Trajectory trajectory = drive.trajectoryBuilder(startPose)
                 .strafeLeft(40)
-                .addTemporalMarker(100, () -> {
-                    // This marker runs two seconds into the trajectory
-                    // Run your action in here!
-                })
                 .build();
 
         waitForStart();
@@ -69,7 +65,12 @@ public class AutonomousOpBlue extends OpModeBase {
                 .build();
         drive.followTrajectory(aprilTag);
 */
-
+        while(!gamepad1.a) {
+            drive.update();
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            telemetry.addData("curX", poseEstimate.getX());
+            telemetry.addData("curY", poseEstimate.getY());
+        }
 
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());
