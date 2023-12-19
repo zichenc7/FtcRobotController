@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
-    public Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
     public MecanumDriveBase drive;
     private double clawPos = CLAW_MAX;
     private double armServoPos = ARM_SERVO_MIN;
@@ -205,7 +204,7 @@ public abstract class OpModeBase extends LinearOpMode {
 
         tfod = new TfodProcessor.Builder()
                 // use ASSET_NAME if it is an asset?
-                .setModelFileName(TFOD_MODEL_FILE)
+                .setModelAssetName(TFOD_MODEL_ASSET)
                 .setModelLabels(LABELS)
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();

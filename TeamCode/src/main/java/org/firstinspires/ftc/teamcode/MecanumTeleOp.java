@@ -19,7 +19,9 @@ public class MecanumTeleOp extends OpModeBase {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
+
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -38,7 +40,7 @@ public class MecanumTeleOp extends OpModeBase {
             double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
             double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
-            double armDown = deadband(-gamepad1.right_trigger) * ARM_MULTI;
+            double armDown = -deadband(gamepad1.right_trigger) * ARM_MULTI;
 
             if (gamepad1.start) {
                 drive.imu.resetYaw();
@@ -77,25 +79,19 @@ public class MecanumTeleOp extends OpModeBase {
 
              */
 
-
             if (gamepad1.left_bumper){
                 armServoModify(-ARM_SERVO_INCREMENT);
             } else if (gamepad1.right_bumper) {
                 armServoModify(ARM_SERVO_INCREMENT);
             }
 
-
-
             motorOp(y, x, rx);
             double clawPos = clawOp();
             double armServoPos = armServoOp();
-            int armPower = armOp(armUp, armDown);
+            int armPos = armOp(armUp, armDown);
 
-
-
-            telemetry.addData("Arm", "Motor Power: (%.2f)", armPower);
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
-            telemetry.addData("Arm", "Motor target:" + drive.armMotor.getCurrentPosition());
+            telemetry.addData("Arm", "Motor current Position:" + armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -103,5 +99,4 @@ public class MecanumTeleOp extends OpModeBase {
         }
         visionPortal.close();
     }
-
 }
