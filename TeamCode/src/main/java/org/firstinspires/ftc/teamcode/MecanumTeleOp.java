@@ -26,8 +26,6 @@ public class MecanumTeleOp extends OpModeBase {
         telemetry.log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
         telemetry.update();
 
-        GamepadEx gamepadEx = new GamepadEx(gamepad1);
-
         waitForStart();
         runtime.reset();
 
@@ -87,10 +85,13 @@ public class MecanumTeleOp extends OpModeBase {
             }
 
 
+
             motorOp(y, x, rx);
             double clawPos = clawOp();
             double armServoPos = armServoOp();
             int armPower = armOp(armUp, armDown);
+
+
 
             telemetry.addData("Arm", "Motor Power: (%.2f)", armPower);
             telemetry.addData("Arm", "Motor target:" + armTargetPos);

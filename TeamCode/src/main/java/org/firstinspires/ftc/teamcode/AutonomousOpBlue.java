@@ -65,12 +65,14 @@ public class AutonomousOpBlue extends OpModeBase {
                 .build();
         drive.followTrajectory(aprilTag);
 */
+        /*
         while(!gamepad1.a) {
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("curX", poseEstimate.getX());
             telemetry.addData("curY", poseEstimate.getY());
         }
+        */
 
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());
