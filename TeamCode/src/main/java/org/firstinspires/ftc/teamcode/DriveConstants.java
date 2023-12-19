@@ -30,8 +30,8 @@ public class DriveConstants {
     public static int ARM_MAX = 1850;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
-    public static double CLAW_MAX = 1;
-    public static double CLAW_MIN = 0.6;
+    public static double CLAW_MAX = 2;
+    public static double CLAW_MIN = 0;
     public static double ARM_SERVO_MIN = 0;
     public static double ARM_SERVO_MAX = 1;
     public static double ARM_SERVO_INCREMENT = 0.002;
