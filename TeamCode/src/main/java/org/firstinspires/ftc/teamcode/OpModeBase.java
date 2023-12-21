@@ -70,7 +70,7 @@ public abstract class OpModeBase extends LinearOpMode {
     public void clawModify() throws InterruptedException {
         if (clawPos == CLAW_MIN){
             clawPos = CLAW_MAX;
-        } else if(clawPos == CLAW_MAX){
+        } else if (clawPos == CLAW_MAX){
             clawPos = CLAW_MIN;
         }
         sleep(200);
