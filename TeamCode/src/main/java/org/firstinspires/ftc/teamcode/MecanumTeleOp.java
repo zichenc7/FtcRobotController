@@ -93,7 +93,7 @@ public class MecanumTeleOp extends OpModeBase {
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
             telemetry.addData("Arm", "Motor current Position:" + armPos);
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
-            telemetry.addData("Arm Servo", "position: (%.5f)", armServoPos);
+            telemetry.addData("Arm Servo", "position: (%.5f)", drive.armServo.getPosition());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }

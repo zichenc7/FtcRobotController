@@ -30,15 +30,15 @@ public class DriveConstants {
     public static int ARM_MAX = 1850;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
-    public static double CLAW_MAX = 1;
-    public static double CLAW_MIN = 0.6;
+    public static double CLAW_MAX = 0.35;
+    public static double CLAW_MIN = 0;
     public static double ARM_SERVO_MIN = 0;
     public static double ARM_SERVO_MAX = 1;
-    public static double ARM_SERVO_INCREMENT = 0.002;
+    public static double ARM_SERVO_INCREMENT = 0.01;
     public static int ARM_POS_OUTPUT = 0;
     public static int ARM_POS_INTAKE = 0;
-    public static double ARM_SERVO_OUTPUT = 0.30200;
-    public static double ARM_SERVO_INTAKE = 0.72400;
+    public static double ARM_SERVO_OUTPUT = 0;
+    public static double ARM_SERVO_INTAKE = 0;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return abs(x) <= DEAD_BAND ? 0 : x;

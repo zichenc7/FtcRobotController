@@ -23,9 +23,11 @@ import java.nio.file.attribute.FileTime;
 public class AutonomousOpRed extends OpModeBase {
     public static double RED_START_X = 11.375;
     public static double RED_START_Y = -63;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+
 
         if (USE_WEBCAM) {
             initWebcam(hardwareMap);
