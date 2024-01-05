@@ -20,33 +20,41 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @Config
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.5;
-    public static double TURN_MULTI = 0.4;
-    public static double ARM_MULTI = 0.5;
+    public static double TURN_MULTI = 0.5;
+    public static double ARM_MULTI = 0.8;
     //speed of macro movements
     public static double ARM_POWER = 0.5;
     // as a percentage
-    public static double ARM_READJUSTMENT_TOLERANCE = 5;
+    public static double ARM_READJUSTMENT_TOLERANCE = 30;
     public static int ARM_MIN = 0;
-    public static int ARM_MAX = 2000;
+    public static int ARM_MAX = 10000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_MAX = 1;
-    public static double CLAW_MIN = 0.6;
-    public static double ARM_SERVO_MIN = 0;
-    public static double ARM_SERVO_MAX = 1;
-    public static double ARM_SERVO_INCREMENT = 0.002;
-    public static int ARM_POS_OUTTAKE = 0;
-    public static int ARM_POS_INTAKE = 0;
-    public static double ARM_SERVO_OUTTAKE = 0.30200;
-    public static double ARM_SERVO_INTAKE = 0.72400;
+    public static double CLAW_MIN = 0.755;
+    public static double ARM_SERVO_MIN = 0.1;
+    public static double ARM_SERVO_MAX = 0.765;
+    public static double ARM_SERVO_INCREMENT = 0.01;
+    public static int ARM_POS_OUTPUT = 6166;
+    public static int ARM_POS_INTAKE = ARM_MIN + 50;
+    public static double ARM_SERVO_OUTPUT = 0.265;
+    public static double ARM_SERVO_INTAKE = ARM_SERVO_MAX;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return abs(x) <= DEAD_BAND ? 0 : x;
     }
     public static double percentDifference(double target, double current) {
-        return abs((target - current / target) * 100);
+        return abs(((target - current) / target) * 100);
     }
     public static boolean USE_WEBCAM = false;
+
+    public static int EXPOSURE_MS = 6;
+    public static int GAIN = 250;
+    // to be determined
+    public static int DESIRED_DISTANCE = 10;
+    public static String IMAGE_PATH = "/images/centerstage.webp";
+    public static String TFOD_MODEL_ASSET = "CenterStage.tflite";
+    public static String TFOD_MODEL_FILE = "/CenterStage.tflite";
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
