@@ -65,23 +65,21 @@ public class MecanumTeleOp extends OpModeBase {
                 sleep(200);
             }
 
-            /*
-            if (gamepad1.x) {
-                drive.armIntakeMacro();
+
+            if (gamepad1.dpad_down) {
+                armIntakeMacro();
                 telemetry.log().add(runtime + "set to pick up position");
                 sleep(200);
             }
-            if (gamepad1.y) {
-                drive.armOuttakeMacro();
+            if (gamepad1.dpad_up) {
+                armOutputMacro();
                 telemetry.log().add(runtime + " set to release position");
                 sleep(200);
             }
 
-             */
-
-            if (gamepad1.left_bumper){
+            if (gamepad1.right_bumper){
                 armServoModify(-ARM_SERVO_INCREMENT);
-            } else if (gamepad1.right_bumper) {
+            } else if (gamepad1.left_bumper) {
                 armServoModify(ARM_SERVO_INCREMENT);
             }
 
@@ -92,6 +90,7 @@ public class MecanumTeleOp extends OpModeBase {
 
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
             telemetry.addData("Arm", "Motor current Position:" + armPos);
+            telemetry.addData("Arm", "Motor error:" + percentDifference(armTargetPos, drive.armMotor.getCurrentPosition()));
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", drive.armServo.getPosition());
             telemetry.addData("Status", "Run Time: " + runtime.toString());

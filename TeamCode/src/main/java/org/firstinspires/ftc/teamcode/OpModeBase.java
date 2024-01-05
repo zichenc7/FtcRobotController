@@ -38,13 +38,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
-    private double clawPos = CLAW_MAX;
-    private double armServoPos = ARM_SERVO_MIN;
+    private double clawPos = CLAW_MIN;
+    private double armServoPos = ARM_SERVO_MAX;
     public int armTargetPos = ARM_MIN;
 
     // auto attributes
-    private AprilTagProcessor aprilTag;
-    private TfodProcessor tfod;
+    public AprilTagProcessor aprilTag;
+    public TfodProcessor tfod;
     public VisionPortal visionPortal;
 
     private static final String[] LABELS = {
@@ -98,8 +98,10 @@ public abstract class OpModeBase extends LinearOpMode {
             armTargetPos = curPos;
             return curPos;
         } else if(!(percentDifference(armTargetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
+            drive.armMotor.setPower(0);
             return curPos;
         }
+        drive.armMotor.setPower(0);
 
         drive.armMotor.setTargetPosition(armTargetPos);
         armModeSwitch();
