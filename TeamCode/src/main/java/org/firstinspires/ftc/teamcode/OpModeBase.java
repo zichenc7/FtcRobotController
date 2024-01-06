@@ -1,18 +1,36 @@
 package org.firstinspires.ftc.teamcode;
-import static org.firstinspires.ftc.teamcode.DriveConstants.*;
+
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTPUT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POWER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_READJUSTMENT_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_OUTPUT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DESIRED_DISTANCE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -21,7 +39,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.Exposur
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
@@ -107,6 +124,25 @@ public abstract class OpModeBase extends LinearOpMode {
         armModeSwitch();
         return curPos;
     }
+
+    // with the elastics / springs / counterweights, we shouldn't need any software correction. So bellow is a replacement armOp
+    /*
+    public int armOp(double armUp, double armDown) {
+        double armPower = armUp + armDown;
+        int curPos = drive.armMotor.getCurrentPosition();
+
+        if (curPos <= ARM_MIN && armPower < 0) {
+            drive.armMotor.setPower(0);
+        } else if (curPos >= ARM_MAX && armPower > 0) {
+            drive.armMotor.setPower(0);
+        } else {
+            drive.armMotor.setPower(armPower);
+        }
+        armTargetPos = curPos;
+        return curPos;
+    }
+     */
+
     // implement something to keep the claw always parallel with the board, maybe use ratios after the arm is past the mid point?
 
 
