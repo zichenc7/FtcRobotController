@@ -42,7 +42,7 @@ public class MecanumTeleOp extends OpModeBase {
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = -deadband(gamepad1.right_trigger) * ARM_MULTI;
 
-            if (gamepad1.start) {
+            if (gamepad1.start && gamepad1.x) {
                 drive.imu.resetYaw();
                 sleep(200);
                 telemetry.log().add(runtime + " IMU reset");
@@ -78,21 +78,21 @@ public class MecanumTeleOp extends OpModeBase {
             }
 
             if (gamepad1.right_bumper){
-                armServoModify(-ARM_SERVO_INCREMENT);
+                wristModify(-WRIST_INCREMENT);
             } else if (gamepad1.left_bumper) {
-                armServoModify(ARM_SERVO_INCREMENT);
+                wristModify(WRIST_INCREMENT);
             }
 
             motorOp(y, x, rx);
             double clawPos = clawOp();
-            double armServoPos = armServoOp();
+            double wristPos = wristOp();
             int armPos = armOp(armUp, armDown);
 
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
             telemetry.addData("Arm", "Motor current Position:" + armPos);
             telemetry.addData("Arm", "Motor error:" + percentDifference(armTargetPos, drive.armMotor.getCurrentPosition()));
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
-            telemetry.addData("Arm Servo", "position: (%.5f)", drive.armServo.getPosition());
+            telemetry.addData("Arm Servo", "position: (%.5f)", drive.wrist.getPosition());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }

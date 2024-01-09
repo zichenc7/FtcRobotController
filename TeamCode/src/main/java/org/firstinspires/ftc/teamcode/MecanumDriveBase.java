@@ -80,10 +80,10 @@ public class MecanumDriveBase extends MecanumDrive {
     private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
     private TrajectoryFollower follower;
-
+    // 0, 3, 2, 1
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
     public DcMotor armMotor;
-    public Servo droneLaunchServo, clawServo, armServo;
+    public Servo droneLaunchServo, clawServo, wrist;
     private List<DcMotorEx> motors;
 
     public IMU imu;
@@ -128,7 +128,7 @@ public class MecanumDriveBase extends MecanumDrive {
 
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
-        armServo = hardwareMap.get(Servo.class, "armServo");
+        wrist = hardwareMap.get(Servo.class, "wrist");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();

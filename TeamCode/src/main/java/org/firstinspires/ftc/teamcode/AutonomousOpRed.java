@@ -32,7 +32,7 @@ public class AutonomousOpRed extends OpModeBase {
 
 
         if (USE_WEBCAM) {
-            initWebcam(hardwareMap);
+            initWebcam(hardwareMap, "red");
         }
         drive = new MecanumDriveBase(hardwareMap);
 
@@ -40,12 +40,15 @@ public class AutonomousOpRed extends OpModeBase {
         Pose2d startPose = new Pose2d(RED_START_X, RED_START_Y, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
+        Trajectory traj = drive.trajectoryBuilder(startPose)
+            .strafeLeft(40)
+            .build();
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-
+        drive.followTrajectory(traj);
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());
         telemetry.addData("finalY", poseEstimate.getY());

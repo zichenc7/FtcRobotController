@@ -1,15 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_ADJUST_POWER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MACRO_POWER;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MAX;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTPUT;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POWER;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_READJUSTMENT_TOLERANCE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_SERVO_OUTPUT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DESIRED_DISTANCE;
@@ -17,7 +18,8 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET;
+import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET_BLUE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET_RED;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
@@ -56,7 +58,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
     private double clawPos = CLAW_MIN;
-    private double armServoPos = ARM_SERVO_MAX;
+    private double wristPos = WRIST_MAX;
     public int armTargetPos = ARM_MIN;
 
     // auto attributes
@@ -93,13 +95,13 @@ public abstract class OpModeBase extends LinearOpMode {
         sleep(200);
     }
 
-    public double armServoOp() {
-        armServoPos = Range.clip(armServoPos, ARM_SERVO_MIN, ARM_SERVO_MAX);
-        drive.armServo.setPosition(armServoPos);
-        return armServoPos;
+    public double wristOp() {
+        wristPos = Range.clip(wristPos, WRIST_MIN, WRIST_MAX);
+        drive.wrist.setPosition(wristPos);
+        return wristPos;
     }
-    public void armServoModify(double increment){
-        armServoPos += increment;
+    public void wristModify(double increment){
+        wristPos += increment;
     }
 
     public int armOp(double armUp, double armDown) {
@@ -118,10 +120,9 @@ public abstract class OpModeBase extends LinearOpMode {
             drive.armMotor.setPower(0);
             return curPos;
         }
-        drive.armMotor.setPower(0);
 
         drive.armMotor.setTargetPosition(armTargetPos);
-        armModeSwitch();
+        armModeSwitch(ARM_ADJUST_POWER);
         return curPos;
     }
 
@@ -154,9 +155,9 @@ public abstract class OpModeBase extends LinearOpMode {
 
     */
 
-    private void armModeSwitch(){
+    private void armModeSwitch(double power){
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        drive.armMotor.setPower(ARM_POWER);
+        drive.armMotor.setPower(power);
         while (drive.armMotor.isBusy() && opModeIsActive()) {}
         drive.armMotor.setPower(0);
         drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -164,17 +165,17 @@ public abstract class OpModeBase extends LinearOpMode {
 
     public void armOutputMacro() {
         armTargetPos = ARM_POS_OUTPUT;
-        armServoPos = ARM_SERVO_OUTPUT;
+        wristPos = WRIST_OUTPUT;
         drive.armMotor.setTargetPosition(armTargetPos);
-        drive.armServo.setPosition(armServoPos);
-        armModeSwitch();
+        drive.wrist.setPosition(wristPos);
+        armModeSwitch(ARM_MACRO_POWER);
     }
     public void armIntakeMacro() {
         armTargetPos = ARM_POS_INTAKE;
-        armServoPos = ARM_SERVO_INTAKE;
+        wristPos = WRIST_INTAKE;
         drive.armMotor.setTargetPosition(armTargetPos);
-        drive.armServo.setPosition(armServoPos);
-        armModeSwitch();
+        drive.wrist.setPosition(wristPos);
+        armModeSwitch(ARM_MACRO_POWER);
     }
 
     public double[] motorOp(double y, double x, double rx) {
@@ -232,8 +233,9 @@ public abstract class OpModeBase extends LinearOpMode {
             continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
         }
     }
-    public void initWebcam(HardwareMap hardwareMap){
+    public void initWebcam(HardwareMap hardwareMap, String teamColour){
         final CameraStreamProcessor dashboard = new CameraStreamProcessor();
+        String modelName = TFOD_MODEL_ASSET_BLUE;
         aprilTag = new AprilTagProcessor.Builder()
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .setDrawTagID(true)
@@ -241,10 +243,12 @@ public abstract class OpModeBase extends LinearOpMode {
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .build();
-
+        if(teamColour.equals("red")){
+            modelName = TFOD_MODEL_ASSET_RED;
+        }
         tfod = new TfodProcessor.Builder()
                 // use ASSET_NAME if it is an asset?
-                .setModelAssetName(TFOD_MODEL_ASSET)
+                .setModelAssetName(modelName)
                 .setModelLabels(LABELS)
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -300,7 +304,7 @@ public abstract class OpModeBase extends LinearOpMode {
             // this needs a lot of testing
 
             double headingError    = targetTag.ftcPose.bearing;
-            double horizontalError = targetTag.ftcPose.x * percentRange;
+            double horizontalError = targetTag.ftcPose.x;
             double verticalError = targetTag.ftcPose.y * percentRange;
 
 

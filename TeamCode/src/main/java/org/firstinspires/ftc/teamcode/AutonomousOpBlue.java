@@ -36,24 +36,24 @@ public class AutonomousOpBlue extends OpModeBase {
         drive = new MecanumDriveBase(hardwareMap);
 
         if (USE_WEBCAM) {
-            initWebcam(hardwareMap);
+            initWebcam(hardwareMap, "blue");
         }
 
         // use tensorflow to identify the position
 
         Pose2d startPose = new Pose2d(BLUE_START_X, BLUE_START_Y, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
-
+        /*
         Trajectory trajectory = drive.trajectoryBuilder(startPose)
                 .strafeLeft(40)
                 .build();
 
+         */
+
         waitForStart();
 
+
         if (isStopRequested()) return;
-
-
-        drive.followTrajectory(trajectory);
 
         /*
         int desiredTagId = 1;
@@ -61,7 +61,7 @@ public class AutonomousOpBlue extends OpModeBase {
 
         Pose2d aprilTagPose = trajectory.end().plus(driveToTargetTag(desiredTagId));
 
-        Trajectory aprilTag = drive.trajectoryBuilder(trajectory.end())
+        Trajectory aprilTag = drive.trajectoryBuilder(startpose)
                 .lineToSplineHeading(aprilTagPose)
                 .build();
         drive.followTrajectory(aprilTag);
