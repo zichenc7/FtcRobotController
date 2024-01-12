@@ -36,11 +36,15 @@ public class MecanumTeleOp extends OpModeBase {
         }
 
         while (opModeIsActive()) {
-            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
-            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
-            double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
+            //double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
+            //double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
+            //double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = -deadband(gamepad1.right_trigger) * ARM_MULTI;
+
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
 
             if (gamepad1.start && gamepad1.x) {
                 drive.imu.resetYaw();
@@ -83,11 +87,13 @@ public class MecanumTeleOp extends OpModeBase {
                 wristModify(WRIST_INCREMENT);
             }
 
-            motorOp(y, x, rx);
+            double[] mp = motorOp(y, x, rx);
             double clawPos = clawOp();
             double wristPos = wristOp();
             int armPos = armOp(armUp, armDown);
 
+            telemetry.addData("Controller", "LX: (%.5f) LY: (%.5f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
+            telemetry.addData("Drive", "FL: (%.5f) BL: (%.5f) FR: (%.5f) BR: (%.5f)", mp[0], mp[1], mp[2], mp[3]);
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
             telemetry.addData("Arm", "Motor current Position:" + armPos);
             telemetry.addData("Arm", "Motor error:" + percentDifference(armTargetPos, drive.armMotor.getCurrentPosition()));

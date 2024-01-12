@@ -41,7 +41,7 @@ public class AutonomousOpRed extends OpModeBase {
         drive.setPoseEstimate(startPose);
 
         Trajectory traj = drive.trajectoryBuilder(startPose)
-            .strafeLeft(40)
+            .forward(20)
             .build();
 
         waitForStart();
