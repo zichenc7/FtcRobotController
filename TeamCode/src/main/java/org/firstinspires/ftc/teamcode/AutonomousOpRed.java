@@ -8,13 +8,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.vision.TeamColour;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 /*
@@ -23,6 +21,8 @@ import java.util.List;
 @Config
 @Autonomous
 public class AutonomousOpRed extends OpModeBase {
+    // 1 tile is 24' by 24'
+    // on the dashboard, y increases to the left, x increases upwards
     public static double RED_START_X = 11.375;
     public static double RED_START_Y = -63;
 
@@ -30,9 +30,8 @@ public class AutonomousOpRed extends OpModeBase {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-
         if (USE_WEBCAM) {
-            initWebcam(hardwareMap, "red");
+            initWebcam(hardwareMap, TeamColour.RED);
         }
         drive = new MecanumDriveBase(hardwareMap);
 

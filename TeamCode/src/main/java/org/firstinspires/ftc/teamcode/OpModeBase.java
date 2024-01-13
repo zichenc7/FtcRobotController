@@ -7,10 +7,6 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_READJUSTMENT_TOLERANCE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DESIRED_DISTANCE;
@@ -18,9 +14,11 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET_BLUE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TFOD_MODEL_ASSET_RED;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import android.graphics.Bitmap;
@@ -42,6 +40,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.vision.PropProcessor;
+import org.firstinspires.ftc.teamcode.vision.TeamColour;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -64,6 +64,7 @@ public abstract class OpModeBase extends LinearOpMode {
     // auto attributes
     public AprilTagProcessor aprilTag;
     public TfodProcessor tfod;
+    public PropProcessor prop;
     public VisionPortal visionPortal;
 
     private static final String[] LABELS = {
@@ -233,9 +234,9 @@ public abstract class OpModeBase extends LinearOpMode {
             continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
         }
     }
-    public void initWebcam(HardwareMap hardwareMap, String teamColour){
+
+    public void initWebcam(HardwareMap hardwareMap, TeamColour teamColour) {
         final CameraStreamProcessor dashboard = new CameraStreamProcessor();
-        String modelName = TFOD_MODEL_ASSET_BLUE;
         aprilTag = new AprilTagProcessor.Builder()
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
                 .setDrawTagID(true)
@@ -243,21 +244,23 @@ public abstract class OpModeBase extends LinearOpMode {
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .build();
-        if(teamColour.equals("red")){
-            modelName = TFOD_MODEL_ASSET_RED;
-        }
+
+        prop = new PropProcessor(teamColour);
+        /*
         tfod = new TfodProcessor.Builder()
                 // use ASSET_NAME if it is an asset?
                 .setModelAssetName(modelName)
                 .setModelLabels(LABELS)
                 .build();
+
+         */
         VisionPortal.Builder builder = new VisionPortal.Builder();
         if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.addProcessors(dashboard, aprilTag, tfod);
+        builder.addProcessors(dashboard, aprilTag, prop);
         visionPortal = builder.build();
 
         FtcDashboard.getInstance().startCameraStream(dashboard, 0);
@@ -303,7 +306,7 @@ public abstract class OpModeBase extends LinearOpMode {
 
             // this needs a lot of testing
 
-            double headingError    = targetTag.ftcPose.bearing;
+            double headingError = targetTag.ftcPose.bearing;
             double horizontalError = targetTag.ftcPose.x;
             double verticalError = targetTag.ftcPose.y * percentRange;
 
@@ -312,30 +315,22 @@ public abstract class OpModeBase extends LinearOpMode {
         }
         return tagPose;
     }
-    /*
-    public int getPropPos(boolean isTeamBlue){
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
-        double x = 0;
-        double y = 0;
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-            x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-        }   // end for() loop
+    public Pose2d driveToProp() {
+        Pose2d pose = null;
+        switch (prop.getPropPosition()) {
+            case LEFT:
+                pose = new Pose2d(5, 7);
+                break;
+            case RIGHT:
+                pose = new Pose2d(1, 7);
+                break;
+            case CENTER:
+                pose = new Pose2d(0, 7);
+                break;
+        }
 
-        //do some logic to determine the right april tag
-        return 0;
+        return pose;
     }
-
-     */
-
-
-
 }
 

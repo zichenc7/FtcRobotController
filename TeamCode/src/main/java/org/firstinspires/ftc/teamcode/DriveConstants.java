@@ -53,11 +53,16 @@ public class DriveConstants {
     public static int GAIN = 250;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
+
+
     public static String IMAGE_PATH = "/images/centerstage.webp";
+    /*
     public static String TFOD_MODEL_ASSET_BLUE = "CenterStage.tflite";
     public static String TFOD_MODEL_ASSET_RED = "CenterStage.tflite";
 
     public static String TFOD_MODEL_FILE = "/CenterStage.tflite";
+
+     */
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
@@ -76,9 +81,9 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(25, 0, 10, 13.5);
-    //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV) for f maybe
+    public static final boolean RUN_USING_ENCODER = false;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0, 0);
+    // p=25, i=0, d=10, f=13.5
 
     /*
      * These are physical constants that can be determined from your robot (including the track
