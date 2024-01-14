@@ -1,14 +1,19 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.MecanumDriveBase;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
 /*
@@ -18,26 +23,26 @@ main work will be done here
 @Config
 @Autonomous
 
-public class AutonomousOpBlue extends OpModeBase {
+public class BlueFrontOp extends AutonomousOpBase {
     // 1 tile is 24' by 24'
     // on the dashboard, y increases to the left, x increases upwards
-    public static double BLUE_START_X = 11.375;
-    public static double BLUE_START_Y = 63;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-
+        teamColour = TeamColour.BLUE;
         drive = new MecanumDriveBase(hardwareMap);
 
         if (USE_WEBCAM) {
-            initWebcam(hardwareMap, TeamColour.BLUE);
+            initWebcam(hardwareMap, teamColour);
         }
 
         // use tensorflow to identify the position
 
         Pose2d startPose = new Pose2d(BLUE_START_X, BLUE_START_Y, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
+
+
         /*
         Trajectory trajectory = drive.trajectoryBuilder(startPose)
                 .strafeLeft(40)
@@ -45,11 +50,27 @@ public class AutonomousOpBlue extends OpModeBase {
 
          */
 
+
         waitForStart();
 
 
         if (isStopRequested()) return;
 
+        PropPosition prop = getPropPosition();
+
+        Trajectory traj = buildSpikePixelTraj(startPose);
+        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
+        TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
+        TrajectorySequence traj4 = buildParkTraj(traj3.end());
+
+
+        //
+        drive.followTrajectory(traj);
+        drive.followTrajectorySequence(traj2);
+        drive.followTrajectorySequence(traj3);
+        armOutputMacro();
+        drive.clawServo.setPosition(CLAW_MIN); // open claw
+        drive.followTrajectorySequence(traj4); // intake macro within this sequence
         /*
         int desiredTagId = 1;
         // do tensorflow stuff
@@ -62,14 +83,13 @@ public class AutonomousOpBlue extends OpModeBase {
         drive.followTrajectory(aprilTag);
 
           */
-        while(!gamepad1.a && opModeIsActive()) {
+        while (!gamepad1.a && opModeIsActive()) {
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("curX", poseEstimate.getX());
             telemetry.addData("curY", poseEstimate.getY());
             //telemetryAprilTag();
         }
-
 
 
         Pose2d poseEstimate = drive.getPoseEstimate();
@@ -79,6 +99,8 @@ public class AutonomousOpBlue extends OpModeBase {
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;
+        // to transfer robot's position to teleOp
+        poseStorage = drive.getPoseEstimate();
         visionPortal.close();
     }
     /*

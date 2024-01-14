@@ -23,6 +23,7 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -40,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.PropProcessor;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -57,6 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
+    public static Pose2d poseStorage = new Pose2d();
     private double clawPos = CLAW_MIN;
     private double wristPos = WRIST_MAX;
     public int armTargetPos = ARM_MIN;
@@ -147,14 +150,6 @@ public abstract class OpModeBase extends LinearOpMode {
 
     // implement something to keep the claw always parallel with the board, maybe use ratios after the arm is past the mid point?
 
-
-    /*
-    public void armModify(double armUp, double armDown) {
-        armMotorPos += (int) ((armUp + armDown) * ARM_SCALE);
-        telemetry.addData("aaa", armMotorPos + " " + " " + armUp + " " + " " + armDown);
-    }
-
-    */
 
     private void armModeSwitch(double power){
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -260,7 +255,8 @@ public abstract class OpModeBase extends LinearOpMode {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.addProcessors(dashboard, aprilTag, prop);
+        builder.addProcessors(dashboard, aprilTag, prop)
+                .setCameraResolution(new Size(320, 180));
         visionPortal = builder.build();
 
         FtcDashboard.getInstance().startCameraStream(dashboard, 0);
@@ -279,7 +275,7 @@ public abstract class OpModeBase extends LinearOpMode {
         sleep(20);
     }
 
-    public Pose2d driveToTargetTag(int desiredTagId) {
+    public Pose2d targetTagPose(int desiredTagId) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
         boolean targetFound = false;
@@ -310,27 +306,15 @@ public abstract class OpModeBase extends LinearOpMode {
             double horizontalError = targetTag.ftcPose.x;
             double verticalError = targetTag.ftcPose.y * percentRange;
 
+            // y and x potentially need to be swapped, and or reversed
 
             tagPose = new Pose2d(horizontalError, verticalError, Math.toRadians(headingError));
         }
         return tagPose;
     }
 
-    public Pose2d driveToProp() {
-        Pose2d pose = null;
-        switch (prop.getPropPosition()) {
-            case LEFT:
-                pose = new Pose2d(5, 7);
-                break;
-            case RIGHT:
-                pose = new Pose2d(1, 7);
-                break;
-            case CENTER:
-                pose = new Pose2d(0, 7);
-                break;
-        }
-
-        return pose;
+    public PropPosition getPropPosition() {
+        return prop.getPropPosition();
     }
 }
 

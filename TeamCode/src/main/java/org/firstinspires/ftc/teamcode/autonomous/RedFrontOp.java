@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -20,28 +21,27 @@ import java.util.List;
  */
 @Config
 @Autonomous
-public class AutonomousOpRed extends OpModeBase {
+public class RedFrontOp extends AutonomousOpBase {
     // 1 tile is 24' by 24'
     // on the dashboard, y increases to the left, x increases upwards
-    public static double RED_START_X = 11.375;
-    public static double RED_START_Y = -63;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        teamColour = TeamColour.RED;
+        drive = new MecanumDriveBase(hardwareMap);
 
         if (USE_WEBCAM) {
-            initWebcam(hardwareMap, TeamColour.RED);
+            initWebcam(hardwareMap, teamColour);
         }
-        drive = new MecanumDriveBase(hardwareMap);
 
 
         Pose2d startPose = new Pose2d(RED_START_X, RED_START_Y, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
         Trajectory traj = drive.trajectoryBuilder(startPose)
-            .forward(20)
-            .build();
+                .forward(20)
+                .build();
 
         waitForStart();
 
@@ -56,7 +56,11 @@ public class AutonomousOpRed extends OpModeBase {
 
         while (!isStopRequested() && opModeIsActive()) {
             telemetryAprilTag();
+            drive.update();
         }
+        // to transfer robot's position to teleOp
+        // this should be the last thing called before the opmode is turned off.
+        poseStorage = drive.getPoseEstimate();
         visionPortal.close();
     }
 
