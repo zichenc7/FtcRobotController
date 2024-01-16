@@ -255,12 +255,9 @@ public abstract class OpModeBase extends LinearOpMode {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.setCameraResolution(new Size(320, 180));
-        builder.addProcessors(dashboard, aprilTag, prop);
-        visionPortal = builder.build();
-
-
-        FtcDashboard.getInstance().startCameraStream(dashboard, 0);
+        visionPortal = builder.setCameraResolution(new Size(320, 180))
+                .addProcessors(dashboard, aprilTag, prop)
+                .build();
 
         // Exposure Settings:
 
@@ -269,11 +266,13 @@ public abstract class OpModeBase extends LinearOpMode {
             exposureControl.setMode(ExposureControl.Mode.Manual);
             sleep(50);
         }
-        exposureControl.setExposure((long)EXPOSURE_MS, TimeUnit.MILLISECONDS);
+        exposureControl.setExposure((long) EXPOSURE_MS, TimeUnit.MILLISECONDS);
         sleep(20);
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(GAIN);
         sleep(20);
+
+        FtcDashboard.getInstance().startCameraStream(dashboard, 30);
     }
 
     public Pose2d targetTagPose(int desiredTagId) {

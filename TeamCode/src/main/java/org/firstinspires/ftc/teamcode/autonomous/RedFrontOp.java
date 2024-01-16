@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
-import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.List;
@@ -30,20 +25,11 @@ public class RedFrontOp extends AutonomousOpBase {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         teamColour = TeamColour.RED;
-        drive = new MecanumDriveBase(hardwareMap);
         initialization();
-
-        if (USE_WEBCAM) {
-            initWebcam(hardwareMap, teamColour);
-        }
-
 
         Pose2d startPose = new Pose2d(RED_START_X, RED_START_Y, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
-        Trajectory traj = drive.trajectoryBuilder(startPose)
-                .forward(20)
-                .build();
 
         waitForStart();
 

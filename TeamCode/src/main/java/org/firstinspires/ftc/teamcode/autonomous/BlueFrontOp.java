@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -11,7 +10,6 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
@@ -30,14 +28,8 @@ public class BlueFrontOp extends AutonomousOpBase {
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        initialization();
         teamColour = TeamColour.BLUE;
-        drive = new MecanumDriveBase(hardwareMap);
-
-        if (USE_WEBCAM) {
-            initWebcam(hardwareMap, teamColour);
-        }
-
-        // use tensorflow to identify the position
 
         Pose2d startPose = new Pose2d(BLUE_START_X, BLUE_START_Y, Math.toRadians(270));
         drive.setPoseEstimate(startPose);

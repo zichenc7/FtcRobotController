@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
+import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.OpModeBase;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
-
-import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 
 @Config
 public abstract class AutonomousOpBase extends OpModeBase {
@@ -102,9 +105,16 @@ public abstract class AutonomousOpBase extends OpModeBase {
         return builder.build();
     }
 
-    public void initialization(){
+    public void initialization() {
+        drive = new MecanumDriveBase(hardwareMap);
+
+        if (USE_WEBCAM) {
+            initWebcam(hardwareMap, teamColour);
+        }
+
         drive.wrist.setPosition(WRIST_MIN);
         drive.clawServo.setPosition(CLAW_MAX);
+
     }
 
 }
