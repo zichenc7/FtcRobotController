@@ -71,18 +71,7 @@ public class BlueFrontOp extends AutonomousOpBase {
         armOutputMacro();
         drive.clawServo.setPosition(CLAW_MIN); // open claw
         drive.followTrajectorySequence(traj4); // intake macro within this sequence
-        /*
-        int desiredTagId = 1;
-        // do tensorflow stuff
 
-        Pose2d aprilTagPose = trajectory.end().plus(driveToTargetTag(desiredTagId));
-
-        Trajectory aprilTag = drive.trajectoryBuilder(startpose)
-                .lineToSplineHeading(aprilTagPose)
-                .build();
-        drive.followTrajectory(aprilTag);
-
-          */
         while (!gamepad1.a && opModeIsActive()) {
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();

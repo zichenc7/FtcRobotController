@@ -46,14 +46,15 @@ public class MecanumTeleOp extends OpModeBase {
 
         while (opModeIsActive()) {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
-            double x = deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
-            double rx = deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
+            double x = -deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
+            double rx = -deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
             double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
             double armDown = -deadband(gamepad1.right_trigger) * ARM_MULTI;
 
             if (gamepad1.start && gamepad1.x) {
                 drive.imu.resetYaw();
                 poseStorage = drive.getPoseEstimate();
+                drive.setPoseEstimate(poseStorage);
                 sleep(200);
                 telemetry.log().add(runtime + " IMU reset");
             }

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
+import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class RedFrontOp extends AutonomousOpBase {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         teamColour = TeamColour.RED;
         drive = new MecanumDriveBase(hardwareMap);
+        initialization();
 
         if (USE_WEBCAM) {
             initWebcam(hardwareMap, teamColour);
@@ -47,7 +49,7 @@ public class RedFrontOp extends AutonomousOpBase {
 
         if (isStopRequested()) return;
 
-        drive.followTrajectory(traj);
+        //drive.followTrajectory(traj);
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());
         telemetry.addData("finalY", poseEstimate.getY());
@@ -55,7 +57,7 @@ public class RedFrontOp extends AutonomousOpBase {
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) {
-            telemetryAprilTag();
+            telemetry.addData("prop", "Detection" + getPropPosition().toString());
             drive.update();
         }
         // to transfer robot's position to teleOp

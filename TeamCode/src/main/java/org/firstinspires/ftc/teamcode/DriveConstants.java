@@ -34,11 +34,11 @@ public class DriveConstants {
     public static double CLAW_MAX = 1;
     public static double CLAW_MIN = 0.755;
     public static double WRIST_MIN = 0;
-    public static double WRIST_MAX = 0.515;
+    public static double WRIST_MAX = 0.55;
     public static double WRIST_INCREMENT = 0.01;
-    public static int ARM_POS_OUTPUT = 6166;
+    public static int ARM_POS_OUTPUT = 8716;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
-    public static double WRIST_OUTPUT = 0.265;
+    public static double WRIST_OUTPUT = 0.01;
     public static double WRIST_INTAKE = WRIST_MAX;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
@@ -47,7 +47,7 @@ public class DriveConstants {
     public static double percentDifference(double target, double current) {
         return abs(((target - current) / target) * 100);
     }
-    public static boolean USE_WEBCAM = false;
+    public static boolean USE_WEBCAM = true;
 
     public static int EXPOSURE_MS = 6;
     public static int GAIN = 250;

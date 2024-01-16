@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuild
 import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.*;
+
 @Config
 public abstract class AutonomousOpBase extends OpModeBase {
     public double RED_START_X = 11.375;
@@ -98,6 +100,11 @@ public abstract class AutonomousOpBase extends OpModeBase {
                 .strafeTo(new Vector2d(startX + P_BACKUP, 60 * dir))
                 .strafeTo(new Vector2d(60, 60 * dir));
         return builder.build();
+    }
+
+    public void initialization(){
+        drive.wrist.setPosition(WRIST_MIN);
+        drive.clawServo.setPosition(CLAW_MAX);
     }
 
 }

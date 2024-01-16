@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class driveTestOp extends OpModeBase{
     public ElapsedTime runtime = new ElapsedTime();
     public static double slow = 0.1;
+    public static double frMultiplier = 1.1;
     public DcMotor leftFront, leftRear, rightRear, rightFront;
     public IMU imu;
 
@@ -35,6 +36,12 @@ public class driveTestOp extends OpModeBase{
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
@@ -49,6 +56,7 @@ public class driveTestOp extends OpModeBase{
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
+
             if (gamepad1.y) {
                 imu.resetYaw();
             }
@@ -58,7 +66,7 @@ public class driveTestOp extends OpModeBase{
                     leftRear.setPower(slow);
                     leftFront.setPower(slow);
                     rightRear.setPower(slow);
-                    rightFront.setPower(slow);
+                    rightFront.setPower(slow*frMultiplier);
                 }
                 leftRear.setPower(0);
                 leftFront.setPower(0);

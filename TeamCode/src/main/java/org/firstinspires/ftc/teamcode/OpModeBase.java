@@ -60,8 +60,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
     public static Pose2d poseStorage = new Pose2d();
-    private double clawPos = CLAW_MIN;
-    private double wristPos = WRIST_MAX;
+    private double clawPos = CLAW_MAX;
+    private double wristPos = WRIST_MIN;
     public int armTargetPos = ARM_MIN;
 
     // auto attributes
@@ -255,9 +255,10 @@ public abstract class OpModeBase extends LinearOpMode {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.addProcessors(dashboard, aprilTag, prop)
-                .setCameraResolution(new Size(320, 180));
+        builder.setCameraResolution(new Size(320, 180));
+        builder.addProcessors(dashboard, aprilTag, prop);
         visionPortal = builder.build();
+
 
         FtcDashboard.getInstance().startCameraStream(dashboard, 0);
 
