@@ -45,6 +45,7 @@ public class RedFrontOp extends AutonomousOpBase {
         while (!isStopRequested() && opModeIsActive()) {
             telemetry.addData("prop", "Detection" + getPropPosition().toString());
             drive.update();
+            telemetry.update();
         }
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.

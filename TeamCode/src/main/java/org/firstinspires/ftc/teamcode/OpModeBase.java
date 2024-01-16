@@ -255,9 +255,13 @@ public abstract class OpModeBase extends LinearOpMode {
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        visionPortal = builder.setCameraResolution(new Size(320, 180))
+        visionPortal = builder.setCameraResolution(new Size(320, 176))
                 .addProcessors(dashboard, aprilTag, prop)
                 .build();
+
+        while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+            sleep(20);
+        }
 
         // Exposure Settings:
 
