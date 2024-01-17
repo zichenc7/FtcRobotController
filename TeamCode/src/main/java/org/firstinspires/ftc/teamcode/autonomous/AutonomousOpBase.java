@@ -20,9 +20,10 @@ import org.firstinspires.ftc.teamcode.vision.TeamColour;
 public abstract class AutonomousOpBase extends OpModeBase {
     public double WIDTH = 17.78;
     public double LENGTH = 17.5;
-    public double RED_START_X = WIDTH / 2;
+    // always starting boardside
+    public double RED_START_X = 24 - WIDTH / 2;
     public double RED_START_Y = -(72 - (LENGTH / 2));
-    public double BLUE_START_X = WIDTH / 2;
+    public double BLUE_START_X = 24 - WIDTH / 2;
     public double BLUE_START_Y = 72 - (LENGTH / 2);
     public double SPIKE_CENTER_Y = 32.76;
     public double SPIKE_LR_Y = 35;
@@ -42,7 +43,7 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public Trajectory buildSpikePixelTraj(Pose2d start) {
         double dir = teamColour.direction;
         return drive.trajectoryBuilder(start)
-                .splineTo(new Vector2d(start.getX() + (12 - (WIDTH / 2)) * dir, 48 * dir), start.getHeading())
+                .splineTo(new Vector2d(start.getX() - (12 - (WIDTH / 2)), 48 * dir), start.getHeading())
                 .build();
     }
 
