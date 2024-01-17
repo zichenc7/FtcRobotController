@@ -10,7 +10,6 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -46,6 +45,14 @@ public class PropProcessor implements VisionProcessor {
     public PropProcessor(TeamColour teamColour) {
         this.teamColour = teamColour;
     }
+    /*
+    Telemetry telemetry;
+    ElapsedTime runtime = new ElapsedTime();
+    public PropProcessor(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
+
+     */
 
 
     @Override
@@ -54,6 +61,8 @@ public class PropProcessor implements VisionProcessor {
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos) {
+        // to prevent contours from ballooning in size and slowing down everything.
+        contours = new ArrayList<>();
         // masking the frame
         Mat hsvFrame = new Mat();
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
@@ -85,12 +94,14 @@ public class PropProcessor implements VisionProcessor {
         // finding largest blob
         largestContour = findLargestContour(contours);
 
+
         //GOAL: create bounding boxes around the spike marks
         // then determine which one is more blue or red than the others (mask maybe?)
         // relay that back to opmodebase
         // https://raw.githubusercontent.com/alan412/LearnJavaForFTC/master/LearnJavaForFTC.pdf
         // https://deltacv.gitbook.io/eocv-sim/vision-portal/introduction-to-visionportal/using-visionportal-within-opmodes
         // https://github.com/artemis18715/New-Programming-Tutorial-23-24/blob/main/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/OpModes/Angle_PID_Tutorial/opencv.java
+
 
         if (largestContour != null) {
             // Draw a red outline around the largest detected object
@@ -109,15 +120,6 @@ public class PropProcessor implements VisionProcessor {
         return null;
     }
 
-    private double calculateWidth(MatOfPoint contour) {
-        Rect boundingRect = Imgproc.boundingRect(contour);
-        return boundingRect.width;
-    }
-
-    private static double getDistance(double width){
-        double distance = (objectWidthInRealWorldUnits * focalLength) / width;
-        return distance;
-    }
     private MatOfPoint findLargestContour(List<MatOfPoint> contours) {
         double maxArea = 0;
         MatOfPoint largestContour = null;
