@@ -21,95 +21,103 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public double WIDTH = 17.78;
     public double LENGTH = 17.5;
     // always starting boardside
-    public double RED_START_X = 24 - WIDTH / 2;
-    public double RED_START_Y = -(72 - (LENGTH / 2));
-    public double BLUE_START_X = 24 - WIDTH / 2;
-    public double BLUE_START_Y = 72 - (LENGTH / 2);
-    public double SPIKE_CENTER_Y = 32.76;
-    public double SPIKE_LR_Y = 35;
-    public double SPIKE_LR_X = 8;
-    public double SPIKE_LR_HEAD = 30;
-    private double SPIKE_HEAD = Math.toRadians(SPIKE_LR_HEAD);
-    public double BD_START_X = 39;
-    public double BD_CENTER = 24;
-    // I think it's slightly less than 7
-    public double BD_OFFSET = 7;
-    public double P_BACKUP = 1;
+    public double START_X = 24 - WIDTH / 2;
+    public double START_Y = 72 - (LENGTH / 2);
+    public double BONUS_OFFSET = -6.22;
+    public double BASE_X = 15.11, BASE_Y = 36;
+    public double SC_X = 15.11, SC_Y = 36;
+    public double SR_X = 2, SR_Y = 36, SR_H = -90;
+    public double SL_X = 19.11, SL_Y = 36, SL_H = 90;
+    public double DROP_X = 49, DROP_Y = 48;
+    public double DROP_CENTER = 35, DROP_OFFSET = 5;
+    public double PARK_X = 60, PARK_Y = 60;
 
 
     TeamColour teamColour;
+    double dir;
+    StartPosition startPosition;
     // all base cases are blueFront oriented
 
     public Trajectory buildSpikePixelTraj(Pose2d start) {
-        double dir = teamColour.direction;
+        double x = BASE_X + startPosition.offset;
+        if (startPosition.equals(StartPosition.BACK)) {
+            x += BONUS_OFFSET;
+        }
+        double y = BASE_Y * teamColour.direction;
         return drive.trajectoryBuilder(start)
-                .splineTo(new Vector2d(start.getX() - (12 - (WIDTH / 2)), 48 * dir), start.getHeading())
+                .splineTo(new Vector2d(x, y), start.getHeading())
                 .build();
     }
 
     public TrajectorySequence buildSpikeTraj(Pose2d start, PropPosition position) {
-        double startX = start.getX();
-        double startY = start.getY();
-        double startHeading = start.getHeading();
-        double dir = teamColour.direction;
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
-
+        double x = startPosition.offset;
+        double y = teamColour.direction;
+        double heading = teamColour.direction;
+        // put spike pixels boardside
         switch (position) {
             case CENTER:
-                builder.splineTo(new Vector2d(startX, SPIKE_CENTER_Y * dir), startHeading);
-                break;
-            case LEFT:
-                builder.splineTo(new Vector2d(startX + SPIKE_LR_X * dir, SPIKE_LR_Y * dir), startHeading - SPIKE_HEAD * dir);
+                x += SC_X;
+                y *= SC_Y;
+                builder.splineTo(new Vector2d(x, y), Math.toRadians(start.getHeading()));
                 break;
             case RIGHT:
-                builder.splineTo(new Vector2d(startX - SPIKE_LR_X * dir, SPIKE_LR_Y * dir), startHeading + SPIKE_HEAD * dir);
+                x += SR_X;
+                y *= SR_Y;
+                heading *= SR_H;
+                builder.turn(heading)
+                        .strafeTo(new Vector2d(x, y));
+                break;
+            case LEFT:
+                x += SL_X;
+                y *= SL_Y;
+                heading *= SL_H;
+                builder.turn(heading)
+                        .strafeTo(new Vector2d(x, y));
                 break;
         }
+        Vector2d base = new Vector2d(start.getX(), start.getY() + 12 * dir);
+
         builder.waitSeconds(1) // might be unnecessary
-                .setReversed(true) // might actually reverse all the trajectories :fear:
-                .splineTo(start.vec(), start.getHeading() * -1);
+                .setReversed(true)
+                .splineTo(base, start.getHeading() * -1);
         return builder.build();
     }
 
     // when / if april tags don't work
     public TrajectorySequence buildBackdropTraj(Pose2d start, PropPosition position) {
-        double startX = start.getX();
-        double startY = start.getY();
-        double startHeading = start.getHeading();
-        double dir = teamColour.direction;
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
-
-        builder.lineToLinearHeading(new Pose2d(startX + BD_START_X, startY, Math.toRadians(180)));
-
+        double x = DROP_X;
+        double y = teamColour.direction;
+        builder.lineToLinearHeading(new Pose2d(DROP_X, DROP_Y, Math.toRadians(180)));
         switch (position) {
             case CENTER:
-                builder.strafeTo(new Vector2d(startX, startY - BD_CENTER * dir));
-                break;
-            case LEFT:
-                builder.strafeTo(new Vector2d(startX, startY - (BD_CENTER + BD_OFFSET) * dir));
+                y *= DROP_CENTER;
+                builder.strafeTo(new Vector2d(x, y));
                 break;
             case RIGHT:
-                builder.strafeTo(new Vector2d(startX, startY - (BD_CENTER - BD_OFFSET) * dir));
+                y *= DROP_CENTER - DROP_OFFSET * dir;
+                builder.strafeTo(new Vector2d(x, y));
+                break;
+            case LEFT:
+                y *= DROP_CENTER + DROP_OFFSET * dir;
+                builder.strafeTo(new Vector2d(x, y));
                 break;
         }
         return builder.build();
     }
 
     public TrajectorySequence buildParkTraj(Pose2d start) {
-        double startX = start.getX();
-        double startY = start.getY();
-        double startHeading = start.getHeading();
-        double dir = teamColour.direction;
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
         builder.back(1)
                 // .addTemporalMarker(() -> armIntakeMacro()) // comment out when only testing drive
                 .waitSeconds(2) // potentially unnecessary
-                .strafeTo(new Vector2d(startX + P_BACKUP, 60 * dir))
-                .strafeTo(new Vector2d(60, 60 * dir));
+                .strafeTo(new Vector2d(DROP_X, PARK_Y * dir))
+                .strafeTo(new Vector2d(PARK_X, PARK_Y * dir));
         return builder.build();
     }
 
-    public void initialization() {
+    public void initialization(TeamColour teamColour, StartPosition startPosition) {
         drive = new MecanumDriveBase(hardwareMap);
 
         if (USE_WEBCAM) {
@@ -118,7 +126,9 @@ public abstract class AutonomousOpBase extends OpModeBase {
 
         drive.wrist.setPosition(WRIST_MIN);
         drive.clawServo.setPosition(CLAW_MAX);
-
+        this.teamColour = teamColour;
+        this.startPosition = startPosition;
+        dir = teamColour.direction;
     }
 
 }

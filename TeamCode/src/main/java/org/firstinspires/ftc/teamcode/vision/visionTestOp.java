@@ -19,7 +19,7 @@ public class visionTestOp extends LinearOpMode {
             return;
         }
 
-        PropProcessor prop = new PropProcessor(TeamColour.RED);
+        PropProcessor prop = new PropProcessor();
         VisionPortal visionPortal;
         VisionPortal.Builder builder = new VisionPortal.Builder();
         visionPortal = builder.setCamera(hardwareMap.get(WebcamName.class, "C:/Users/jeffx/Downloads/prop/" + path + ".jpg"))

@@ -39,12 +39,10 @@ public class PropProcessor implements VisionProcessor {
 
     List<MatOfPoint> contours = new ArrayList<>();
     MatOfPoint largestContour;
-    TeamColour teamColour = TeamColour.RED;
+    TeamColour teamColour = TeamColour.BLUE;
 
 
-    public PropProcessor(TeamColour teamColour) {
-        this.teamColour = teamColour;
-    }
+    //public PropProcessor(TeamColour teamColour) {this.teamColour = teamColour;}
     /*
     Telemetry telemetry;
     ElapsedTime runtime = new ElapsedTime();
@@ -84,7 +82,7 @@ public class PropProcessor implements VisionProcessor {
         } else if (teamColour == TeamColour.BLUE) {
             Core.inRange(hsvFrame, blueMin, blueMax, mask);
             Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
-            Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
+            Imgproc.morphologyEx(mask, frame, Imgproc.MORPH_CLOSE, kernel);
         }
 
         //determining contours

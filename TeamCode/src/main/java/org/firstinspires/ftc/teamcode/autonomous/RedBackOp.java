@@ -22,10 +22,10 @@ public class RedBackOp extends AutonomousOpBase {
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        teamColour = TeamColour.RED;
-        initialization();
+        initialization(TeamColour.RED, StartPosition.BACK);
 
-        Pose2d startPose = new Pose2d(RED_START_X - 48, RED_START_Y, Math.toRadians(90));
+
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset, START_Y * teamColour.direction, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
         waitForStart();

@@ -53,6 +53,7 @@ public class DriveConstants {
     public static int GAIN = 100;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
+    public static double BACKSTAGE_OFFSET = -48;
 
 
     public static String IMAGE_PATH = "/images/centerstage.webp";
