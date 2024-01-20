@@ -59,26 +59,24 @@ public abstract class AutonomousOpBase extends OpModeBase {
             case CENTER:
                 x += SC_X;
                 y *= SC_Y;
-                builder.splineTo(new Vector2d(x, y), Math.toRadians(start.getHeading()));
+                heading = 0;
                 break;
             case RIGHT:
                 x += SR_X;
                 y *= SR_Y;
                 heading *= SR_H;
-                builder.turn(heading)
-                        .strafeTo(new Vector2d(x, y));
                 break;
             case LEFT:
                 x += SL_X;
                 y *= SL_Y;
                 heading *= SL_H;
-                builder.turn(heading)
-                        .strafeTo(new Vector2d(x, y));
                 break;
         }
         Vector2d base = new Vector2d(start.getX(), start.getY() + 12 * dir);
 
-        builder.waitSeconds(1) // might be unnecessary
+        builder.turn(heading)
+                .strafeTo(new Vector2d(x, y))
+                .waitSeconds(1) // might be unnecessary
                 .setReversed(true)
                 .splineTo(base, start.getHeading() * -1);
         return builder.build();

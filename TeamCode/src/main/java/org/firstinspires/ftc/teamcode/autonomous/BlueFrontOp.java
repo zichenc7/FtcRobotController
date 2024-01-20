@@ -33,15 +33,6 @@ public class BlueFrontOp extends AutonomousOpBase {
         Pose2d startPose = new Pose2d(START_X, START_Y, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
-
-        /*
-        Trajectory trajectory = drive.trajectoryBuilder(startPose)
-                .strafeLeft(40)
-                .build();
-
-         */
-
-
         waitForStart();
 
 
@@ -51,32 +42,31 @@ public class BlueFrontOp extends AutonomousOpBase {
 
         Trajectory traj = buildSpikePixelTraj(startPose);
         TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-        TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
-        TrajectorySequence traj4 = buildParkTraj(traj3.end());
+        //TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
+        //TrajectorySequence traj4 = buildParkTraj(traj3.end());
 
 
-        //
         drive.followTrajectory(traj);
         drive.followTrajectorySequence(traj2);
-        drive.followTrajectorySequence(traj3);
-        armOutputMacro();
-        drive.clawServo.setPosition(CLAW_MIN); // open claw
-        drive.followTrajectorySequence(traj4); // intake macro within this sequence
+        //drive.followTrajectorySequence(traj3);
+        //armOutputMacro();
+        //drive.clawServo.setPosition(CLAW_MIN); // open claw
+        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
 
-        while (!gamepad1.a && opModeIsActive()) {
+        while (!gamepad1.a && opModeIsActive() && !isStopRequested()) {
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("curX", poseEstimate.getX());
             telemetry.addData("curY", poseEstimate.getY());
-            //telemetryAprilTag();
+            telemetry.addData("prop", "Detection" + getPropPosition().toString());
+            telemetry.update();
         }
 
+        Trajectory ret = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .splineTo(startPose.vec(), startPose.getHeading())
+                .build();
 
-        Pose2d poseEstimate = drive.getPoseEstimate();
-        telemetry.addData("finalX", poseEstimate.getX());
-        telemetry.addData("finalY", poseEstimate.getY());
-        telemetry.addData("finalHeading", poseEstimate.getHeading());
-        telemetry.update();
+        drive.followTrajectory(ret);
 
         while (!isStopRequested() && opModeIsActive()) ;
         // to transfer robot's position to teleOp
