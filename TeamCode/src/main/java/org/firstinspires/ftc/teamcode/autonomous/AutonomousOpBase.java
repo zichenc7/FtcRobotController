@@ -25,7 +25,7 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public double START_Y = 72 - (LENGTH / 2);
     public double BONUS_OFFSET = -6.22;
     public double BASE_X = 15.11, BASE_Y = 36;
-    public double SC_X = 15.11, SC_Y = 36;
+    public double SC_X = 15.11, SC_Y = 30;
     public double SR_X = 2, SR_Y = 36, SR_H = -90;
     public double SL_X = 19.11, SL_Y = 36, SL_H = 90;
     public double DROP_X = 49, DROP_Y = 48;
