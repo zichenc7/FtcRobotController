@@ -7,8 +7,8 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_READJUSTMENT_TOLERANCE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DESIRED_DISTANCE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
@@ -16,8 +16,8 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MAX;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
@@ -60,8 +60,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
     public static Pose2d poseStorage = new Pose2d();
-    private double clawPos = CLAW_MAX;
-    private double wristPos = WRIST_MIN;
+    private double clawPos = CLAW_CLOSE;
+    private double wristPos = WRIST_UP;
     public int armTargetPos = ARM_MIN;
 
     // auto attributes
@@ -86,21 +86,21 @@ public abstract class OpModeBase extends LinearOpMode {
         sleep(500);
     }
     public double clawOp() {
-        clawPos = Range.clip(clawPos, CLAW_MIN, CLAW_MAX);
+        clawPos = Range.clip(clawPos, CLAW_OPEN, CLAW_CLOSE);
         drive.clawServo.setPosition(clawPos);
         return clawPos;
     }
     public void clawModify() throws InterruptedException {
-        if (clawPos == CLAW_MIN){
-            clawPos = CLAW_MAX;
-        } else if (clawPos == CLAW_MAX){
-            clawPos = CLAW_MIN;
+        if (clawPos == CLAW_OPEN){
+            clawPos = CLAW_CLOSE;
+        } else if (clawPos == CLAW_CLOSE){
+            clawPos = CLAW_OPEN;
         }
         sleep(200);
     }
 
     public double wristOp() {
-        wristPos = Range.clip(wristPos, WRIST_MIN, WRIST_MAX);
+        wristPos = Range.clip(wristPos, WRIST_UP, WRIST_DOWN);
         drive.wrist.setPosition(wristPos);
         return wristPos;
     }
@@ -256,7 +256,7 @@ public abstract class OpModeBase extends LinearOpMode {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
         visionPortal = builder.setCameraResolution(new Size(320, 176))
-                .addProcessors(dashboard, aprilTag, prop)
+                .addProcessors(dashboard, prop)
                 .build();
 
         while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {

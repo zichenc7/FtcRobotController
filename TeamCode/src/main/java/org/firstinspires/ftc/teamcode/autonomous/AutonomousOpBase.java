@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -18,19 +20,19 @@ import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
 @Config
 public abstract class AutonomousOpBase extends OpModeBase {
-    public double WIDTH = 17.78;
-    public double LENGTH = 17.5;
+    public static double WIDTH = 17.78;
+    public static double LENGTH = 17.5;
     // always starting boardside
-    public double START_X = 24 - WIDTH / 2;
-    public double START_Y = 72 - (LENGTH / 2);
-    public double BONUS_OFFSET = -6.22;
-    public double BASE_X = 15.11, BASE_Y = 36;
-    public double SC_X = 15.11, SC_Y = 30;
-    public double SR_X = 2, SR_Y = 36, SR_H = -90;
-    public double SL_X = 19.11, SL_Y = 36, SL_H = 90;
-    public double DROP_X = 49, DROP_Y = 48;
-    public double DROP_CENTER = 35, DROP_OFFSET = 5;
-    public double PARK_X = 60, PARK_Y = 60;
+    public static double START_X = 24 - WIDTH / 2;
+    public static double START_Y = 72 - (LENGTH / 2);
+    public static double BONUS_OFFSET = -6.22;
+    public static double BASE_X = 15.11, BASE_Y = 36;
+    public static double SC_X = 15.11, SC_Y = 30.01;
+    public static double SR_X = 14, SR_Y = 36, SR_H = -90;
+    public static double SL_X = 21, SL_Y = 32.7, SL_H = 90;
+    public static double DROP_X = 49, DROP_Y = 48;
+    public static double DROP_CENTER = 35, DROP_OFFSET = 5;
+    public static double PARK_X = 60, PARK_Y = 60;
 
 
     TeamColour teamColour;
@@ -74,14 +76,16 @@ public abstract class AutonomousOpBase extends OpModeBase {
         }
         Vector2d base = new Vector2d(start.getX(), start.getY() + 12 * dir);
 
-        builder.turn(heading)
+        builder.turn(Math.toRadians(heading))
                 .strafeTo(new Vector2d(x, y))
-                .waitSeconds(1) // might be unnecessary
-                .setReversed(true)
-                .splineTo(base, start.getHeading() * -1);
+                .addTemporalMarker(() ->{
+                    drive.wrist.setPosition(WRIST_UP);});
+                //.waitSeconds(1)
+                //.setReversed(true)
+                //.splineTo(base, start.getHeading() * -1);
         return builder.build();
     }
-
+    // drive.wrist.setPosition(WRIST_MAX);
     // when / if april tags don't work
     public TrajectorySequence buildBackdropTraj(Pose2d start, PropPosition position) {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
@@ -122,8 +126,8 @@ public abstract class AutonomousOpBase extends OpModeBase {
             initWebcam(hardwareMap, teamColour);
         }
 
-        drive.wrist.setPosition(WRIST_MIN);
-        drive.clawServo.setPosition(CLAW_MAX);
+        drive.wrist.setPosition(WRIST_UP);
+        drive.clawServo.setPosition(CLAW_CLOSE);
         this.teamColour = teamColour;
         this.startPosition = startPosition;
         dir = teamColour.direction;

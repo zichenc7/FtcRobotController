@@ -29,7 +29,7 @@ public class MecanumTeleOp extends OpModeBase {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
-        drive.setPoseEstimate(poseStorage);
+        drive.setPoseEstimate(new Pose2d());
 
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
@@ -48,25 +48,25 @@ public class MecanumTeleOp extends OpModeBase {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
             double x = -deadband(gamepad1.left_stick_x) * DRIVE_MULTI * speedMulti;
             double rx = -deadband(gamepad1.right_stick_x) * TURN_MULTI * speedMulti;
-            double armUp = deadband(gamepad1.left_trigger) * ARM_MULTI;
-            double armDown = -deadband(gamepad1.right_trigger) * ARM_MULTI;
+            double armUp = deadband(gamepad2.left_trigger) * ARM_MULTI;
+            double armDown = -deadband(gamepad2.right_trigger) * ARM_MULTI;
 
-            if (gamepad1.start && gamepad1.x) {
+            if (gamepad2.start && gamepad2.x) {
                 drive.imu.resetYaw();
                 poseStorage = drive.getPoseEstimate();
-                drive.setPoseEstimate(poseStorage);
+                drive.setPoseEstimate(new Pose2d());
                 sleep(200);
                 telemetry.log().add(runtime + " IMU reset");
             }
-            if (gamepad1.back) {
+            if (gamepad2.back) {
                launchDrone();
                telemetry.log().add(runtime + " Drone launched");
             }
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
-            if (gamepad1.y) {
+            if (gamepad2.y) {
                 if (speedMulti == 1){
                     speedMulti = 0.25;
                 } else {
@@ -77,20 +77,20 @@ public class MecanumTeleOp extends OpModeBase {
             }
 
 
-            if (gamepad1.dpad_down) {
+            if (gamepad2.dpad_down) {
                 armIntakeMacro();
                 telemetry.log().add(runtime + "set to pick up position");
                 sleep(200);
             }
-            if (gamepad1.dpad_up) {
+            if (gamepad2.dpad_up) {
                 armOutputMacro();
                 telemetry.log().add(runtime + " set to release position");
                 sleep(200);
             }
 
-            if (gamepad1.right_bumper){
+            if (gamepad2.right_bumper){
                 wristModify(-WRIST_INCREMENT);
-            } else if (gamepad1.left_bumper) {
+            } else if (gamepad2.left_bumper) {
                 wristModify(WRIST_INCREMENT);
             }
 
@@ -117,6 +117,10 @@ public class MecanumTeleOp extends OpModeBase {
                             rx
                     )
             );
+
+
+
+
 
 
             telemetry.addData("Controller", "LX: (%.5f) LY: (%.5f)", gamepad1.left_stick_x, gamepad1.left_stick_y);

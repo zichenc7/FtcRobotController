@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -35,17 +38,26 @@ public class BlueBackOp extends AutonomousOpBase {
         waitForStart();
 
         if (isStopRequested()) return;
-        PropPosition prop = getPropPosition();
+        sleep(5000);
 
+        PropPosition prop = getPropPosition();
         Trajectory traj = buildSpikePixelTraj(startPose);
         TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-        TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
-        TrajectorySequence traj4 = buildParkTraj(traj3.end());
 
 
         //
+        drive.clawServo.setPosition(CLAW_OPEN);
+        drive.wrist.setPosition(WRIST_DOWN);
         drive.followTrajectory(traj);
         drive.followTrajectorySequence(traj2);
+
+
+
+        //Trajectory park = drive.trajectoryBuilder(startPose)
+            //    .strafeLeft(40)
+             //   .build();
+
+        //drive.followTrajectory(park);
         //drive.followTrajectorySequence(traj3);
         //armOutputMacro();
         //drive.clawServo.setPosition(CLAW_MIN); // open claw
@@ -53,22 +65,9 @@ public class BlueBackOp extends AutonomousOpBase {
 
         //drive.followTrajectory(traj);
 
-        while (!gamepad1.a && opModeIsActive()) {
+        while (!isStopRequested() && opModeIsActive()) {
             drive.update();
-            Pose2d poseEstimate = drive.getPoseEstimate();
-            telemetry.addData("curX", poseEstimate.getX());
-            telemetry.addData("curY", poseEstimate.getY());
-            telemetry.addData("prop", "Detection" + getPropPosition().toString());
-            telemetry.update();
         }
-
-        Trajectory ret = drive.trajectoryBuilder(traj2.end())
-                .splineTo(startPose.vec(), startPose.getHeading())
-                .build();
-
-        drive.followTrajectory(ret);
-
-        while (!isStopRequested() && opModeIsActive()) ;
 
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.

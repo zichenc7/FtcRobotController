@@ -35,15 +35,19 @@ public class RedBackOp extends AutonomousOpBase {
 
         if (isStopRequested()) return;
 
+        sleep(5000);
         PropPosition prop = getPropPosition();
 
         Trajectory traj = buildSpikePixelTraj(startPose);
         TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-        TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
-        TrajectorySequence traj4 = buildParkTraj(traj3.end());
+
+        //Trajectory park = drive.trajectoryBuilder(startPose)
+              //  .strafeRight(40)
+              //  .build();
+
+        //drive.followTrajectory(park);
 
 
-        //
         drive.followTrajectory(traj);
         drive.followTrajectorySequence(traj2);
         //drive.followTrajectorySequence(traj3);
@@ -53,22 +57,9 @@ public class RedBackOp extends AutonomousOpBase {
 
         //drive.followTrajectory(traj);
 
-        while (!gamepad1.a && opModeIsActive()) {
+        while (!isStopRequested() && opModeIsActive()) {
             drive.update();
-            Pose2d poseEstimate = drive.getPoseEstimate();
-            telemetry.addData("curX", poseEstimate.getX());
-            telemetry.addData("curY", poseEstimate.getY());
-            telemetry.addData("prop", "Detection" + getPropPosition().toString());
-            telemetry.update();
         }
-
-        Trajectory ret = drive.trajectoryBuilder(traj2.end())
-                .splineTo(startPose.vec(), startPose.getHeading())
-                .build();
-
-        drive.followTrajectory(ret);
-
-        while (!isStopRequested() && opModeIsActive()) ;
 
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.

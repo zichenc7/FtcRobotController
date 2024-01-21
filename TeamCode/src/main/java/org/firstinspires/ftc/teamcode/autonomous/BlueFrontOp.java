@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -34,11 +35,13 @@ public class BlueFrontOp extends AutonomousOpBase {
         drive.setPoseEstimate(startPose);
 
         waitForStart();
-
-
         if (isStopRequested()) return;
+        sleep(5000);
 
         PropPosition prop = getPropPosition();
+        prop = PropPosition.CENTER;
+        telemetry.addData("prop", "Detection" + prop.toString());
+        telemetry.update();
 
         Trajectory traj = buildSpikePixelTraj(startPose);
         TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
@@ -46,14 +49,25 @@ public class BlueFrontOp extends AutonomousOpBase {
         //TrajectorySequence traj4 = buildParkTraj(traj3.end());
 
 
+        /*
+        Trajectory park = drive.trajectoryBuilder(startPose)
+                        .strafeLeft(40)
+                        .build();
+
+         drive.followTrajectory(park);
+
+         */
+        drive.clawServo.setPosition(CLAW_OPEN);
+        drive.wrist.setPosition(WRIST_DOWN);
         drive.followTrajectory(traj);
         drive.followTrajectorySequence(traj2);
+
         //drive.followTrajectorySequence(traj3);
         //armOutputMacro();
         //drive.clawServo.setPosition(CLAW_MIN); // open claw
         //drive.followTrajectorySequence(traj4); // intake macro within this sequence
 
-        while (!gamepad1.a && opModeIsActive() && !isStopRequested()) {
+        while (opModeIsActive() && !isStopRequested()) {
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("curX", poseEstimate.getX());
@@ -61,43 +75,8 @@ public class BlueFrontOp extends AutonomousOpBase {
             telemetry.addData("prop", "Detection" + getPropPosition().toString());
             telemetry.update();
         }
-
-        Trajectory ret = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .splineTo(startPose.vec(), startPose.getHeading())
-                .build();
-
-        drive.followTrajectory(ret);
-
-        while (!isStopRequested() && opModeIsActive()) ;
         // to transfer robot's position to teleOp
         poseStorage = drive.getPoseEstimate();
         visionPortal.close();
     }
-    /*
-    public void telemetryAprilTag() {
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-        // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-            } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
-        }   // end for() loop
-
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-
-    }   // end method telemetryAprilTag()
-
-     */
 }

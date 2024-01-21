@@ -31,15 +31,15 @@ public class DriveConstants {
     public static int ARM_MAX = 10000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
-    public static double CLAW_MAX = 1;
-    public static double CLAW_MIN = 0.755;
-    public static double WRIST_MIN = 0;
-    public static double WRIST_MAX = 0.55;
+    public static double CLAW_CLOSE = 1;
+    public static double CLAW_OPEN = 0.755;
+    public static double WRIST_UP = 0;
+    public static double WRIST_DOWN = 0.55;
     public static double WRIST_INCREMENT = 0.01;
     public static int ARM_POS_OUTPUT = 8716;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
     public static double WRIST_OUTPUT = 0.01;
-    public static double WRIST_INTAKE = WRIST_MAX;
+    public static double WRIST_INTAKE = WRIST_DOWN;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return abs(x) <= DEAD_BAND ? 0 : x;
@@ -50,7 +50,7 @@ public class DriveConstants {
     public static boolean USE_WEBCAM = true;
 
     public static int EXPOSURE_MS = 6;
-    public static int GAIN = 100;
+    public static int GAIN = 125;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
     public static double BACKSTAGE_OFFSET = -48;

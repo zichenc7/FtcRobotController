@@ -36,13 +36,12 @@ public class RedFrontOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
+        sleep(5000);
 
         PropPosition prop = getPropPosition();
 
         Trajectory traj = buildSpikePixelTraj(startPose);
         TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-        TrajectorySequence traj3 = buildBackdropTraj(traj2.end(), prop);
-        TrajectorySequence traj4 = buildParkTraj(traj3.end());
 
 
         //
@@ -53,25 +52,18 @@ public class RedFrontOp extends AutonomousOpBase {
         //drive.clawServo.setPosition(CLAW_MIN); // open claw
         //drive.followTrajectorySequence(traj4); // intake macro within this sequence
 
-        //drive.followTrajectory(traj);
+          /*
+        Trajectory park = drive.trajectoryBuilder(startPose)
+                        .strafeRight(40)
+                        .build();
 
-        while (!gamepad1.a && opModeIsActive()) {
+         drive.followTrajectory(park);
+
+         */
+
+        while (!isStopRequested() && opModeIsActive()) {
             drive.update();
-            Pose2d poseEstimate = drive.getPoseEstimate();
-            telemetry.addData("curX", poseEstimate.getX());
-            telemetry.addData("curY", poseEstimate.getY());
-            telemetry.addData("prop", "Detection" + getPropPosition().toString());
-            telemetry.update();
         }
-
-        Trajectory ret = drive.trajectoryBuilder(traj2.end())
-                .splineTo(startPose.vec(), startPose.getHeading())
-                .build();
-
-        drive.followTrajectory(ret);
-
-        while (!isStopRequested() && opModeIsActive()) ;
-
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
         poseStorage = drive.getPoseEstimate();

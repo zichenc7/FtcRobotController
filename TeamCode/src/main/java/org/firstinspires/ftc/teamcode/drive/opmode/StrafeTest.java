@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.*;
  * This is a simple routine to test translational drive capabilities.
  */
 @Config
+@Disabled
 
 @Autonomous(group = "drive")
 public class StrafeTest extends LinearOpMode {
