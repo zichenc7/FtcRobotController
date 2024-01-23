@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package com.example.meepmeeptesting;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.BACKSTAGE_OFFSET;
 
 public enum StartPosition {
     FRONT(0, 1),
-    BACK(BACKSTAGE_OFFSET, -1);
+    BACK(-24, -1);
     public final double offset;
     public final double direction;
 

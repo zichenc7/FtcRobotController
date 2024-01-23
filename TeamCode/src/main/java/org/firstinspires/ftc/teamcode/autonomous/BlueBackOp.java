@@ -32,7 +32,7 @@ public class BlueBackOp extends AutonomousOpBase {
 
         initialization(TeamColour.BLUE, StartPosition.BACK);
 
-        Pose2d startPose = new Pose2d(START_X + startPosition.offset, START_Y * teamColour.direction, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         waitForStart();

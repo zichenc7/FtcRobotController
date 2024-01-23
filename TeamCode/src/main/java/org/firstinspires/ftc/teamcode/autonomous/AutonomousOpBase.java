@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -26,37 +24,47 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public static double START_X = 24 - WIDTH / 2;
     public static double START_Y = 72 - (LENGTH / 2);
     public static double BONUS_OFFSET = -6.22;
-    public static double BASE_X = 15.11, BASE_Y = 36;
-    public static double SC_X = 15.11, SC_Y = 30.01;
-    public static double SR_X = 14, SR_Y = 36, SR_H = -90;
-    public static double SL_X = 21, SL_Y = 32.7, SL_H = 90;
+    public static double BASE_X = 30, BASE_Y = 36, BASE_H = 180;
+    public static double SC_X = 15.11, SC_Y = 27;
+    public static double SR_X = 8, SR_Y = 36, SR_H = -90;
+    public static double SL_X = 29, SL_Y = 36, SL_H = 90;
     public static double DROP_X = 49, DROP_Y = 48;
     public static double DROP_CENTER = 35, DROP_OFFSET = 5;
     public static double PARK_X = 60, PARK_Y = 60;
 
+    public static double BOARD_X1 = -48, BOARD_Y1 = 12;
+    public static double BOARD_X2 = 38, BOARD_Y2 = 12;
+
 
     TeamColour teamColour;
-    double dir;
+    double Tdir;
+    double Sdir;
     StartPosition startPosition;
     // all base cases are blueFront oriented
 
     public Trajectory buildSpikePixelTraj(Pose2d start) {
-        double x = BASE_X + startPosition.offset;
-        if (startPosition.equals(StartPosition.BACK)) {
-            x += BONUS_OFFSET;
+        double heading = Math.toRadians(BASE_H);
+        if(startPosition.equals(StartPosition.BACK)){
+            heading = 0;
         }
-        double y = BASE_Y * teamColour.direction;
+
+        double x = BASE_X * Sdir + startPosition.offset;
+        double y = BASE_Y * Tdir;
+        Pose2d base = new Pose2d(x, y, heading);
         return drive.trajectoryBuilder(start)
-                .splineTo(new Vector2d(x, y), start.getHeading())
-                .build();
+                .lineToLinearHeading(base).build();
     }
 
     public TrajectorySequence buildSpikeTraj(Pose2d start, PropPosition position) {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
-        double x = startPosition.offset;
+        double x = startPosition.offset * 2;
         double y = teamColour.direction;
         double heading = teamColour.direction;
         // put spike pixels boardside
+        if(startPosition.equals(StartPosition.BACK)){
+            x -= 10;
+        }
+
         switch (position) {
             case CENTER:
                 x += SC_X;
@@ -74,15 +82,14 @@ public abstract class AutonomousOpBase extends OpModeBase {
                 heading *= SL_H;
                 break;
         }
-        Vector2d base = new Vector2d(start.getX(), start.getY() + 12 * dir);
+        Vector2d base = new Vector2d(start.getX(), start.getY());
 
         builder.turn(Math.toRadians(heading))
                 .strafeTo(new Vector2d(x, y))
                 .addTemporalMarker(() ->{
-                    drive.wrist.setPosition(WRIST_UP);});
-                //.waitSeconds(1)
-                //.setReversed(true)
-                //.splineTo(base, start.getHeading() * -1);
+                    drive.wrist.setPosition(WRIST_UP);})
+                .waitSeconds(1)
+                .strafeTo(base);
         return builder.build();
     }
     // drive.wrist.setPosition(WRIST_MAX);
@@ -91,21 +98,27 @@ public abstract class AutonomousOpBase extends OpModeBase {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
         double x = DROP_X;
         double y = teamColour.direction;
-        builder.lineToLinearHeading(new Pose2d(DROP_X, DROP_Y, Math.toRadians(180)));
         switch (position) {
             case CENTER:
                 y *= DROP_CENTER;
                 builder.strafeTo(new Vector2d(x, y));
                 break;
             case RIGHT:
-                y *= DROP_CENTER - DROP_OFFSET * dir;
+                y *= DROP_CENTER - DROP_OFFSET * Tdir;
                 builder.strafeTo(new Vector2d(x, y));
                 break;
             case LEFT:
-                y *= DROP_CENTER + DROP_OFFSET * dir;
+                y *= DROP_CENTER + DROP_OFFSET * Tdir;
                 builder.strafeTo(new Vector2d(x, y));
                 break;
         }
+        return builder.build();
+    }
+
+    public TrajectorySequence driveToBoard(Pose2d start){
+        TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
+        double x = DROP_X;
+        double y = teamColour.direction;
         return builder.build();
     }
 
@@ -114,8 +127,8 @@ public abstract class AutonomousOpBase extends OpModeBase {
         builder.back(1)
                 // .addTemporalMarker(() -> armIntakeMacro()) // comment out when only testing drive
                 .waitSeconds(2) // potentially unnecessary
-                .strafeTo(new Vector2d(DROP_X, PARK_Y * dir))
-                .strafeTo(new Vector2d(PARK_X, PARK_Y * dir));
+                .strafeTo(new Vector2d(DROP_X, PARK_Y * Tdir))
+                .strafeTo(new Vector2d(PARK_X, PARK_Y * Tdir));
         return builder.build();
     }
 
@@ -130,7 +143,8 @@ public abstract class AutonomousOpBase extends OpModeBase {
         drive.clawServo.setPosition(CLAW_CLOSE);
         this.teamColour = teamColour;
         this.startPosition = startPosition;
-        dir = teamColour.direction;
+        Tdir = teamColour.direction;
+        Sdir = startPosition.direction;
     }
 
 }
