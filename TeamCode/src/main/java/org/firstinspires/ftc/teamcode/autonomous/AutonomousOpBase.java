@@ -28,6 +28,7 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public static double SC_X = 15.11, SC_Y = 27;
     public static double SR_X = 8, SR_Y = 36, SR_H = -90;
     public static double SL_X = 29, SL_Y = 36, SL_H = 90;
+    public static double SPIKE_BACK_OFFSET = -10;
     public static double DROP_X = 49, DROP_Y = 48;
     public static double DROP_CENTER = 35, DROP_OFFSET = 5;
     public static double PARK_X = 60, PARK_Y = 60;
@@ -59,37 +60,31 @@ public abstract class AutonomousOpBase extends OpModeBase {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
         double x = startPosition.offset * 2;
         double y = teamColour.direction;
-        double heading = teamColour.direction;
         // put spike pixels boardside
         if(startPosition.equals(StartPosition.BACK)){
-            x -= 10;
+            x += SPIKE_BACK_OFFSET;
         }
 
         switch (position) {
             case CENTER:
                 x += SC_X;
                 y *= SC_Y;
-                heading = 0;
                 break;
             case RIGHT:
                 x += SR_X;
                 y *= SR_Y;
-                heading *= SR_H;
                 break;
             case LEFT:
                 x += SL_X;
                 y *= SL_Y;
-                heading *= SL_H;
                 break;
         }
-        Vector2d base = new Vector2d(start.getX(), start.getY());
 
-        builder.turn(Math.toRadians(heading))
-                .strafeTo(new Vector2d(x, y))
+        builder.strafeTo(new Vector2d(x, y))
                 .addTemporalMarker(() ->{
                     drive.wrist.setPosition(WRIST_UP);})
                 .waitSeconds(1)
-                .strafeTo(base);
+                .strafeTo(start.vec());
         return builder.build();
     }
     // drive.wrist.setPosition(WRIST_MAX);

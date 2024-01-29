@@ -31,7 +31,7 @@ public class MeepMeepTesting {
 
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(600);
-        PropPosition position = PropPosition.CENTER;
+        PropPosition position = PropPosition.RIGHT;
         TeamColour teamColour = TeamColour.BLUE;
         StartPosition startPosition = StartPosition.BACK;
         double Tdir = teamColour.direction;
@@ -109,6 +109,7 @@ public class MeepMeepTesting {
                                 .strafeTo(base.vec())
                                 .lineToSplineHeading(new Pose2d(BOARD_X1, BOARD_Y1, 0))
                                 .strafeTo(new Vector2d(BOARD_X2, BOARD_Y2))
+                                .lineToSplineHeading(new Pose2d( board, Math.toRadians(180)))
                                 .build()
                 );
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)
