@@ -21,25 +21,25 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.5;
     public static double TURN_MULTI = 0.5;
-    public static double ARM_MULTI = 0.8;
+    public static double ARM_MULTI = 0.5;
     //speed of macro movements
     public static double ARM_MACRO_POWER = 1;
     public static double ARM_ADJUST_POWER = 0.5;
     // as a percentage
-    public static double ARM_READJUSTMENT_TOLERANCE = 30;
+    public static double ARM_READJUSTMENT_TOLERANCE = 5;
     public static int ARM_MIN = 0;
-    public static int ARM_MAX = 10000;
+    public static int ARM_MAX = 4000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
     public static double CLAW_CLOSE = 1;
     public static double CLAW_OPEN = 0.755;
     public static double WRIST_UP = 0;
-    public static double WRIST_DOWN = 0.55;
+    public static double WRIST_DOWN = 0.6;
     public static double WRIST_INCREMENT = 0.01;
     public static int ARM_POS_OUTPUT = 8716;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
     public static double WRIST_OUTPUT = 0.01;
-    public static double WRIST_INTAKE = WRIST_DOWN;
+    public static double WRIST_INTAKE = 0.58;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return abs(x) <= DEAD_BAND ? 0 : x;

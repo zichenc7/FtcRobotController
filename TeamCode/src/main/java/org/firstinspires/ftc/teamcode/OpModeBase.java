@@ -112,21 +112,32 @@ public abstract class OpModeBase extends LinearOpMode {
         double armPower = armUp + armDown;
         int curPos = drive.armMotor.getCurrentPosition();
 
+        if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_TO_POSITION) && !drive.armMotor.isBusy()){
+            drive.armMotor.setPower(0);
+            drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
         if (curPos <= ARM_MIN && armPower < 0) {
             armTargetPos = ARM_MIN;
         } else if (curPos >= ARM_MAX && armPower > 0) {
             armTargetPos = ARM_MAX;
         } else if(armPower != 0) {
+            if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_TO_POSITION)){
+                drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
             drive.armMotor.setPower(armPower);
             armTargetPos = curPos;
             return curPos;
-        } else if(!(percentDifference(armTargetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
-            drive.armMotor.setPower(0);
+        } else if (Math.abs(armTargetPos - curPos) < ARM_READJUSTMENT_TOLERANCE) {
             return curPos;
         }
 
-        drive.armMotor.setTargetPosition(armTargetPos);
-        armModeSwitch(ARM_ADJUST_POWER);
+        if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_USING_ENCODER)){
+            drive.armMotor.setTargetPosition(armTargetPos);
+            drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            drive.armMotor.setPower(ARM_ADJUST_POWER);
+        }
+
         return curPos;
     }
 
@@ -164,14 +175,16 @@ public abstract class OpModeBase extends LinearOpMode {
         wristPos = WRIST_OUTPUT;
         drive.armMotor.setTargetPosition(armTargetPos);
         drive.wrist.setPosition(wristPos);
-        armModeSwitch(ARM_MACRO_POWER);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(ARM_MACRO_POWER);
     }
     public void armIntakeMacro() {
         armTargetPos = ARM_POS_INTAKE;
         wristPos = WRIST_INTAKE;
         drive.armMotor.setTargetPosition(armTargetPos);
         drive.wrist.setPosition(wristPos);
-        armModeSwitch(ARM_MACRO_POWER);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(ARM_MACRO_POWER);
     }
 
     public double[] motorOp(double y, double x, double rx) {

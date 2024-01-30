@@ -12,7 +12,9 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -31,6 +33,7 @@ public class MecanumTeleOp extends OpModeBase {
         drive = new MecanumDriveBase(hardwareMap);
         drive.setPoseEstimate(new Pose2d());
 
+
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -43,6 +46,9 @@ public class MecanumTeleOp extends OpModeBase {
         if (isStopRequested()) {
             return;
         }
+
+        //GamepadEx gamepad1 = new GamepadEx(new Gamepad());
+        //GamepadEx gamepad2 = new GamepadEx(new Gamepad());
 
         while (opModeIsActive()) {
             double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
@@ -66,8 +72,8 @@ public class MecanumTeleOp extends OpModeBase {
                 clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
-            if (gamepad2.y) {
-                if (speedMulti == 1){
+            if (gamepad1.y) {
+                if (!(speedMulti == 0.25)){
                     speedMulti = 0.25;
                 } else {
                     speedMulti = 1;
@@ -127,12 +133,13 @@ public class MecanumTeleOp extends OpModeBase {
             //telemetry.addData("Drive", "FL: (%.5f) BL: (%.5f) FR: (%.5f) BR: (%.5f)", mp[0], mp[1], mp[2], mp[3]);
             telemetry.addData("Arm", "Motor target:" + armTargetPos);
             telemetry.addData("Arm", "Motor current Position:" + armPos);
-            telemetry.addData("Arm", "Motor error:" + percentDifference(armTargetPos, drive.armMotor.getCurrentPosition()));
+            telemetry.addData("Arm", "Motor error:" + Math.abs( armPos - armTargetPos));
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", drive.wrist.getPosition());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
         visionPortal.close();
+        drive.armMotor.setPower(0);
     }
 }

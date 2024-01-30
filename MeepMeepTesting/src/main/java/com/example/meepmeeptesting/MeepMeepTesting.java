@@ -25,14 +25,13 @@ public class MeepMeepTesting {
     public static double DROP_X = 49, DROP_Y = 48;
     public static double DROP_CENTER = 35, DROP_OFFSET = 5;
     public static double PARK_X = 60, PARK_Y = 60;
-
     public static double BOARD_X1 = -55, BOARD_Y1 = 12;
     public static double BOARD_X2 = 38, BOARD_Y2 = 12;
 
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(600);
-        PropPosition position = PropPosition.RIGHT;
-        TeamColour teamColour = TeamColour.BLUE;
+        PropPosition position = PropPosition.CENTER;
+        TeamColour teamColour = TeamColour.RED;
         StartPosition startPosition = StartPosition.BACK;
         double Tdir = teamColour.direction;
         double Sdir = startPosition.direction;
@@ -107,9 +106,11 @@ public class MeepMeepTesting {
                                 .lineToLinearHeading(base)
                                 .strafeTo(spike)
                                 .strafeTo(base.vec())
-                                .lineToSplineHeading(new Pose2d(BOARD_X1, BOARD_Y1, 0))
-                                .strafeTo(new Vector2d(BOARD_X2, BOARD_Y2))
+                                .strafeTo(new Vector2d(BOARD_X1, BOARD_Y1 * Tdir))
+                                .strafeTo(new Vector2d(BOARD_X2, BOARD_Y2 * Tdir))
                                 .lineToSplineHeading(new Pose2d( board, Math.toRadians(180)))
+                                .strafeTo(new Vector2d(DROP_X, (PARK_Y - 48) * Tdir))
+                                .strafeTo(new Vector2d(PARK_X, (PARK_Y - 48) * Tdir))
                                 .build()
                 );
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)
