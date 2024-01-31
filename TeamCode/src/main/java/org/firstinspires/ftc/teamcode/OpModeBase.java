@@ -83,7 +83,6 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.droneLaunchServo.setPosition(DRONE_LAUNCH_POS);
         sleep(500);
         drive.droneLaunchServo.setPosition(DRONE_REST_POS);
-        sleep(500);
     }
     public double clawOp() {
         clawPos = Range.clip(clawPos, CLAW_OPEN, CLAW_CLOSE);
@@ -96,7 +95,6 @@ public abstract class OpModeBase extends LinearOpMode {
         } else if (clawPos == CLAW_CLOSE){
             clawPos = CLAW_OPEN;
         }
-        sleep(200);
     }
 
     public double wristOp() {

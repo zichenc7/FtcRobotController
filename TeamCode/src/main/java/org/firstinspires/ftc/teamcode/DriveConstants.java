@@ -36,9 +36,9 @@ public class DriveConstants {
     public static double WRIST_UP = 0;
     public static double WRIST_DOWN = 0.6;
     public static double WRIST_INCREMENT = 0.01;
-    public static int ARM_POS_OUTPUT = 8716;
+    public static int ARM_POS_OUTPUT = 3108;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
-    public static double WRIST_OUTPUT = 0.01;
+    public static double WRIST_OUTPUT = 0;
     public static double WRIST_INTAKE = 0.58;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
