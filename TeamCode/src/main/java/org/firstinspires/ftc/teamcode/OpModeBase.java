@@ -1,18 +1,37 @@
 package org.firstinspires.ftc.teamcode;
-import static org.firstinspires.ftc.teamcode.DriveConstants.*;
+
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_ADJUST_POWER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MACRO_POWER;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MAX;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_OUTPUT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_READJUSTMENT_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DESIRED_DISTANCE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_LAUNCH_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
+import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -21,8 +40,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.Exposur
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.vision.PropPosition;
+import org.firstinspires.ftc.teamcode.vision.PropProcessor;
+import org.firstinspires.ftc.teamcode.vision.TeamColour;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -38,13 +59,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
-    private double clawPos = CLAW_MIN;
-    private double armServoPos = ARM_SERVO_MAX;
+    public static Pose2d poseStorage = new Pose2d();
+    private double clawPos = CLAW_CLOSE;
+    private double wristPos = WRIST_UP;
     public int armTargetPos = ARM_MIN;
 
     // auto attributes
     public AprilTagProcessor aprilTag;
     public TfodProcessor tfod;
+    public PropProcessor prop;
     public VisionPortal visionPortal;
 
     private static final String[] LABELS = {
@@ -60,67 +83,86 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.droneLaunchServo.setPosition(DRONE_LAUNCH_POS);
         sleep(500);
         drive.droneLaunchServo.setPosition(DRONE_REST_POS);
-        sleep(500);
     }
     public double clawOp() {
-        clawPos = Range.clip(clawPos, CLAW_MIN, CLAW_MAX);
+        clawPos = Range.clip(clawPos, CLAW_OPEN, CLAW_CLOSE);
         drive.clawServo.setPosition(clawPos);
         return clawPos;
     }
     public void clawModify() throws InterruptedException {
-        if (clawPos == CLAW_MIN){
-            clawPos = CLAW_MAX;
-        } else if (clawPos == CLAW_MAX){
-            clawPos = CLAW_MIN;
+        if (clawPos == CLAW_OPEN){
+            clawPos = CLAW_CLOSE;
+        } else if (clawPos == CLAW_CLOSE){
+            clawPos = CLAW_OPEN;
         }
-        sleep(200);
     }
 
-    public double armServoOp() {
-        armServoPos = Range.clip(armServoPos, ARM_SERVO_MIN, ARM_SERVO_MAX);
-        drive.armServo.setPosition(armServoPos);
-        return armServoPos;
+    public double wristOp() {
+        wristPos = Range.clip(wristPos, WRIST_UP, WRIST_DOWN);
+        drive.wrist.setPosition(wristPos);
+        return wristPos;
     }
-    public void armServoModify(double increment){
-        armServoPos += increment;
+    public void wristModify(double increment){
+        wristPos += increment;
     }
 
     public int armOp(double armUp, double armDown) {
         double armPower = armUp + armDown;
         int curPos = drive.armMotor.getCurrentPosition();
 
+        if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_TO_POSITION) && !drive.armMotor.isBusy()){
+            drive.armMotor.setPower(0);
+            drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
         if (curPos <= ARM_MIN && armPower < 0) {
             armTargetPos = ARM_MIN;
         } else if (curPos >= ARM_MAX && armPower > 0) {
             armTargetPos = ARM_MAX;
         } else if(armPower != 0) {
+            if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_TO_POSITION)){
+                drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
             drive.armMotor.setPower(armPower);
             armTargetPos = curPos;
             return curPos;
-        } else if(!(percentDifference(armTargetPos, curPos) > ARM_READJUSTMENT_TOLERANCE)){
-            drive.armMotor.setPower(0);
+        } else if (Math.abs(armTargetPos - curPos) < ARM_READJUSTMENT_TOLERANCE) {
             return curPos;
         }
-        drive.armMotor.setPower(0);
 
-        drive.armMotor.setTargetPosition(armTargetPos);
-        armModeSwitch();
+        if (drive.armMotor.getMode().equals(DcMotor.RunMode.RUN_USING_ENCODER)){
+            drive.armMotor.setTargetPosition(armTargetPos);
+            drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            drive.armMotor.setPower(ARM_ADJUST_POWER);
+        }
+
         return curPos;
     }
+
+    // with the elastics / springs / counterweights, we shouldn't need any software correction. So bellow is a replacement armOp
+    /*
+    public int armOp(double armUp, double armDown) {
+        double armPower = armUp + armDown;
+        int curPos = drive.armMotor.getCurrentPosition();
+
+        if (curPos <= ARM_MIN && armPower < 0) {
+            drive.armMotor.setPower(0);
+        } else if (curPos >= ARM_MAX && armPower > 0) {
+            drive.armMotor.setPower(0);
+        } else {
+            drive.armMotor.setPower(armPower);
+        }
+        armTargetPos = curPos;
+        return curPos;
+    }
+     */
+
     // implement something to keep the claw always parallel with the board, maybe use ratios after the arm is past the mid point?
 
 
-    /*
-    public void armModify(double armUp, double armDown) {
-        armMotorPos += (int) ((armUp + armDown) * ARM_SCALE);
-        telemetry.addData("aaa", armMotorPos + " " + " " + armUp + " " + " " + armDown);
-    }
-
-    */
-
-    private void armModeSwitch(){
+    private void armModeSwitch(double power){
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        drive.armMotor.setPower(ARM_POWER);
+        drive.armMotor.setPower(power);
         while (drive.armMotor.isBusy() && opModeIsActive()) {}
         drive.armMotor.setPower(0);
         drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -128,17 +170,19 @@ public abstract class OpModeBase extends LinearOpMode {
 
     public void armOutputMacro() {
         armTargetPos = ARM_POS_OUTPUT;
-        armServoPos = ARM_SERVO_OUTPUT;
+        wristPos = WRIST_OUTPUT;
         drive.armMotor.setTargetPosition(armTargetPos);
-        drive.armServo.setPosition(armServoPos);
-        armModeSwitch();
+        drive.wrist.setPosition(wristPos);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(ARM_MACRO_POWER);
     }
     public void armIntakeMacro() {
         armTargetPos = ARM_POS_INTAKE;
-        armServoPos = ARM_SERVO_INTAKE;
+        wristPos = WRIST_INTAKE;
         drive.armMotor.setTargetPosition(armTargetPos);
-        drive.armServo.setPosition(armServoPos);
-        armModeSwitch();
+        drive.wrist.setPosition(wristPos);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(ARM_MACRO_POWER);
     }
 
     public double[] motorOp(double y, double x, double rx) {
@@ -196,7 +240,8 @@ public abstract class OpModeBase extends LinearOpMode {
             continuation.dispatch(bitmapConsumer -> bitmapConsumer.accept(lastFrame.get()));
         }
     }
-    public void initWebcam(HardwareMap hardwareMap){
+
+    public void initWebcam(HardwareMap hardwareMap, TeamColour teamColour) {
         final CameraStreamProcessor dashboard = new CameraStreamProcessor();
         aprilTag = new AprilTagProcessor.Builder()
                 .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
@@ -206,21 +251,28 @@ public abstract class OpModeBase extends LinearOpMode {
                 .setDrawCubeProjection(true)
                 .build();
 
+        prop = new PropProcessor(teamColour);
+        /*
         tfod = new TfodProcessor.Builder()
                 // use ASSET_NAME if it is an asset?
-                .setModelAssetName(TFOD_MODEL_ASSET)
+                .setModelAssetName(modelName)
                 .setModelLabels(LABELS)
                 .build();
+
+         */
         VisionPortal.Builder builder = new VisionPortal.Builder();
         if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
-        builder.addProcessors(dashboard, aprilTag, tfod);
-        visionPortal = builder.build();
+        visionPortal = builder.setCameraResolution(new Size(320, 176))
+                .addProcessors(dashboard, prop)
+                .build();
 
-        FtcDashboard.getInstance().startCameraStream(dashboard, 0);
+        while (!isStopRequested() && (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING)) {
+            sleep(20);
+        }
 
         // Exposure Settings:
 
@@ -229,14 +281,16 @@ public abstract class OpModeBase extends LinearOpMode {
             exposureControl.setMode(ExposureControl.Mode.Manual);
             sleep(50);
         }
-        exposureControl.setExposure((long)EXPOSURE_MS, TimeUnit.MILLISECONDS);
+        exposureControl.setExposure((long) EXPOSURE_MS, TimeUnit.MILLISECONDS);
         sleep(20);
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(GAIN);
         sleep(20);
+
+        FtcDashboard.getInstance().startCameraStream(dashboard, 30);
     }
 
-    public Pose2d driveToTargetTag(int desiredTagId) {
+    public Pose2d targetTagPose(int desiredTagId) {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
         boolean targetFound = false;
@@ -263,39 +317,19 @@ public abstract class OpModeBase extends LinearOpMode {
 
             // this needs a lot of testing
 
-            double headingError    = targetTag.ftcPose.bearing;
-            double horizontalError = targetTag.ftcPose.x * percentRange;
+            double headingError = targetTag.ftcPose.bearing;
+            double horizontalError = targetTag.ftcPose.x;
             double verticalError = targetTag.ftcPose.y * percentRange;
 
+            // y and x potentially need to be swapped, and or reversed
 
             tagPose = new Pose2d(horizontalError, verticalError, Math.toRadians(headingError));
         }
         return tagPose;
     }
-    /*
-    public int getPropPos(boolean isTeamBlue){
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
-        double x = 0;
-        double y = 0;
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-            x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-        }   // end for() loop
-
-        //do some logic to determine the right april tag
-        return 0;
+    public PropPosition getPropPosition() {
+        return prop.getPropPosition();
     }
-
-     */
-
-
-
 }
 

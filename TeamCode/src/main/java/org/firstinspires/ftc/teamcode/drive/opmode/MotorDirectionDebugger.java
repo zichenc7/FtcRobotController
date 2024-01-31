@@ -38,8 +38,9 @@ import org.firstinspires.ftc.teamcode.*;
  *
  * Uncomment the @Disabled tag below to use this opmode.
  */
-@Disabled
 @Config
+@Disabled
+
 @TeleOp(group = "drive")
 public class MotorDirectionDebugger extends LinearOpMode {
     public static double MOTOR_POWER = 0.7;

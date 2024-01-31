@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.trajectorysequence;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.IMAGE_PATH;
+
 import androidx.annotation.Nullable;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -29,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
-import static org.firstinspires.ftc.teamcode.DriveConstants.*;
 
 @Config
 public class TrajectorySequenceRunner {
@@ -106,6 +106,7 @@ public class TrajectorySequenceRunner {
 
         fieldOverlay.setAlpha(0.75);
         fieldOverlay.drawImage(IMAGE_PATH, 0, 0, 144, 144);
+        // we might want to rotate the image
         fieldOverlay.setAlpha(1.0);
         fieldOverlay.drawGrid(0, 0, 144, 144, 7, 7);
 

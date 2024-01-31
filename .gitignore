@@ -79,3 +79,5 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+**/vision/EOCV-Sim-3.5.2-all.jar

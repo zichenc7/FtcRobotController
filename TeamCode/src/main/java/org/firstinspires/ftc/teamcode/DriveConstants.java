@@ -21,24 +21,25 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.5;
     public static double TURN_MULTI = 0.5;
-    public static double ARM_MULTI = 0.8;
+    public static double ARM_MULTI = 0.5;
     //speed of macro movements
-    public static double ARM_POWER = 0.5;
+    public static double ARM_MACRO_POWER = 1;
+    public static double ARM_ADJUST_POWER = 0.5;
     // as a percentage
-    public static double ARM_READJUSTMENT_TOLERANCE = 30;
+    public static double ARM_READJUSTMENT_TOLERANCE = 5;
     public static int ARM_MIN = 0;
-    public static int ARM_MAX = 10000;
+    public static int ARM_MAX = 4000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
-    public static double CLAW_MAX = 1;
-    public static double CLAW_MIN = 0.755;
-    public static double ARM_SERVO_MIN = 0.1;
-    public static double ARM_SERVO_MAX = 0.765;
-    public static double ARM_SERVO_INCREMENT = 0.01;
-    public static int ARM_POS_OUTPUT = 6166;
+    public static double CLAW_CLOSE = 1;
+    public static double CLAW_OPEN = 0.755;
+    public static double WRIST_UP = 0;
+    public static double WRIST_DOWN = 0.6;
+    public static double WRIST_INCREMENT = 0.01;
+    public static int ARM_POS_OUTPUT = 3108;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
-    public static double ARM_SERVO_OUTPUT = 0.265;
-    public static double ARM_SERVO_INTAKE = ARM_SERVO_MAX;
+    public static double WRIST_OUTPUT = 0;
+    public static double WRIST_INTAKE = 0.58;
     public static double DEAD_BAND = 0.05;
     public static double deadband(double x) {
         return abs(x) <= DEAD_BAND ? 0 : x;
@@ -46,15 +47,23 @@ public class DriveConstants {
     public static double percentDifference(double target, double current) {
         return abs(((target - current) / target) * 100);
     }
-    public static boolean USE_WEBCAM = false;
+    public static boolean USE_WEBCAM = true;
 
     public static int EXPOSURE_MS = 6;
-    public static int GAIN = 250;
+    public static int GAIN = 125;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
+    public static double BACKSTAGE_OFFSET = -48;
+
+
     public static String IMAGE_PATH = "/images/centerstage.webp";
-    public static String TFOD_MODEL_ASSET = "CenterStage.tflite";
+    /*
+    public static String TFOD_MODEL_ASSET_BLUE = "CenterStage.tflite";
+    public static String TFOD_MODEL_ASSET_RED = "CenterStage.tflite";
+
     public static String TFOD_MODEL_FILE = "/CenterStage.tflite";
+
+     */
 
     // RoadRunner constants below beware!!!!!!!!!
     // DO NOT CHANGE UNLESS YOU KNOW WHAT YOU'RE DOING!!!!!!!
@@ -73,9 +82,9 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(25, 0, 10, 13.5);
-    //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV) for f maybe
+    public static final boolean RUN_USING_ENCODER = false;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0, 0);
+    // p=25, i=0, d=10, f=13.5
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -96,8 +105,8 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
+    public static double kV = 0.0185;
+    public static double kA = 0.002;
     public static double kStatic = 0;
 
     /*
