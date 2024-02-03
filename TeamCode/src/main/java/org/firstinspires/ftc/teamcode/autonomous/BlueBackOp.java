@@ -41,17 +41,20 @@ public class BlueBackOp extends AutonomousOpBase {
         sleep(5000);
 
         PropPosition prop = getPropPosition();
-        Trajectory traj = buildSpikePixelTraj(startPose);
-        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
+        Trajectory preSpike = buildSpikePixelTraj(startPose);
+        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), prop);
+        TrajectorySequence toDrop = driveToBoard(spike.end());
+        TrajectorySequence drop = buildBackdropTraj(toDrop.end(), prop);
+        TrajectorySequence park = buildParkTraj(drop.end());
 
-
-        //
-        drive.clawServo.setPosition(CLAW_OPEN);
         drive.wrist.setPosition(WRIST_DOWN);
-        drive.followTrajectory(traj);
-        drive.followTrajectorySequence(traj2);
-
-
+        drive.followTrajectory(preSpike);
+        drive.followTrajectorySequence(spike);
+        drive.followTrajectorySequence(toDrop);
+        drive.followTrajectorySequence(drop);
+        armOutputMacro();
+        armMacroClose();
+        drive.followTrajectorySequence(park);
 
         //Trajectory park = drive.trajectoryBuilder(startPose)
             //    .strafeLeft(40)

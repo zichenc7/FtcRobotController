@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRIVE_MULTI;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TURN_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INCREMENT;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 import static org.firstinspires.ftc.teamcode.DriveConstants.deadband;
 import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
@@ -20,21 +20,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-
 // 192.168.43.1:8080/dash
 @Config
 @TeleOp
 public class MecanumTeleOp extends OpModeBase {
     public ElapsedTime runtime = new ElapsedTime();
-    public double speedMulti = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
         drive.setPoseEstimate(new Pose2d());
-
-
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -54,52 +50,63 @@ public class MecanumTeleOp extends OpModeBase {
 
 
         while (opModeIsActive()) {
-            double y = -deadband(gp1.getLeftY()) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
-            double x = -deadband(gp1.getLeftX()) * DRIVE_MULTI * speedMulti;
-            double rx = -deadband(gp1.getRightX()) * TURN_MULTI * speedMulti;
+            double y = deadband(gp1.getLeftY()) * DRIVE_MULTI; // Remember, Y stick value is reversed
+            double x = -deadband(gp1.getLeftX()) * DRIVE_MULTI;
+            double rx = -deadband(gp1.getRightX()) * DRIVE_MULTI;
             double armUp = deadband(gp2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * ARM_MULTI;
             double armDown = -deadband(gp2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)) * ARM_MULTI;
 
-            if (gp1.wasJustPressed(GamepadKeys.Button.START) && gp1.wasJustPressed(GamepadKeys.Button.X)) {
+            if (gamepad1.start && gamepad1.x) {
                 drive.imu.resetYaw();
                 poseStorage = drive.getPoseEstimate();
                 drive.setPoseEstimate(new Pose2d());
                 telemetry.log().add(runtime + " IMU reset");
+                sleep(100);
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.BACK)) {
+            if (gamepad2.back) {
                launchDrone();
                telemetry.log().add(runtime + " Drone launched");
+               sleep(100);
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.A)) {
+            if (gamepad2.a) {
                 clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
+                sleep(100);
             }
-            if (gp1.wasJustPressed(GamepadKeys.Button.Y)) {
-                if (!(speedMulti == 0.25)){
-                    speedMulti = 0.25;
+            if (gamepad1.y) {
+                if (DRIVE_MULTI != 0.5) {
+                    DRIVE_MULTI = 0.5;
+                    telemetry.log().add(runtime + " Slow Drive Deactivated: " + DRIVE_MULTI*2);
                 } else {
-                    speedMulti = 1;
+                    DRIVE_MULTI = 0.25;
+                    telemetry.log().add(runtime + " Slow Drive Activated: " + DRIVE_MULTI*2);
                 }
-                telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
+                sleep(100);
             }
-            if (gp1.wasJustPressed(GamepadKeys.Button.X)) {
-                if (!(speedMulti == 1.5)){
-                    speedMulti = 1.5;
+            if (gamepad1.b) {
+                if (DRIVE_MULTI != 0.5) {
+                    DRIVE_MULTI = 0.5;
+                    telemetry.log().add(runtime + " Fast Drive Deactivated: " + DRIVE_MULTI*2);
                 } else {
-                    speedMulti = 1;
+                    DRIVE_MULTI = 1;
+                    telemetry.log().add(runtime + " Fast Drive Activated: " + DRIVE_MULTI*2);
                 }
-                telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
+                sleep(100);
             }
 
 
 
-            if (gp2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+            if (gamepad2.dpad_down) {
                 armIntakeMacro();
-                telemetry.log().add(runtime + "set to pick up position");
+                telemetry.log().add(runtime + " Arm Intake");
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+            if (gamepad2.dpad_up) {
                 armOutputMacro();
-                telemetry.log().add(runtime + " set to release position");
+                telemetry.log().add(runtime + " Arm Output");
+            }
+            if (gamepad2.x) {
+                wristUp();
+                telemetry.log().add(runtime + " Wrist Up");
             }
 
             if (gp2.isDown(GamepadKeys.Button.RIGHT_BUMPER)){

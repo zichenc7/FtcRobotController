@@ -8,6 +8,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.apache.commons.math3.stat.descriptive.moment.VectorialCovariance;
 import org.firstinspires.ftc.teamcode.MecanumDriveBase;
@@ -145,6 +146,12 @@ public abstract class AutonomousOpBase extends OpModeBase {
         this.startPosition = startPosition;
         Tdir = teamColour.direction;
         Sdir = startPosition.direction;
+    }
+
+    public void armMacroClose() {
+        while (drive.armMotor.isBusy() && opModeIsActive()){}
+        drive.armMotor.setPower(0);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }

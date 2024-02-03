@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @Config
 public class DriveConstants {
     public static double DRIVE_MULTI = 0.5;
-    public static double TURN_MULTI = 0.5;
     public static double ARM_MULTI = 0.5;
     //speed of macro movements
     public static double ARM_MACRO_POWER = 1;
@@ -36,7 +35,7 @@ public class DriveConstants {
     public static double WRIST_UP = 0;
     public static double WRIST_DOWN = 0.6;
     public static double WRIST_INCREMENT = 0.01;
-    public static int ARM_POS_OUTPUT = 3108;
+    public static int ARM_POS_OUTPUT = 3100;
     public static int ARM_POS_INTAKE = ARM_MIN + 50;
     public static double WRIST_OUTPUT = 0;
     public static double WRIST_INTAKE = 0.58;

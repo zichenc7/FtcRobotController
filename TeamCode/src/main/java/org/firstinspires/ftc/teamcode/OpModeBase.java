@@ -177,12 +177,17 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.armMotor.setPower(ARM_MACRO_POWER);
     }
     public void armIntakeMacro() {
-        armTargetPos = ARM_POS_INTAKE;
         wristPos = WRIST_INTAKE;
-        drive.armMotor.setTargetPosition(armTargetPos);
+        armTargetPos = ARM_POS_INTAKE;
         drive.wrist.setPosition(wristPos);
+        sleep(100);
+        drive.armMotor.setTargetPosition(armTargetPos);
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.armMotor.setPower(ARM_MACRO_POWER);
+    }
+
+    public void wristUp() {
+        drive.wrist.setPosition(WRIST_UP);
     }
 
     public double[] motorOp(double y, double x, double rx) {
