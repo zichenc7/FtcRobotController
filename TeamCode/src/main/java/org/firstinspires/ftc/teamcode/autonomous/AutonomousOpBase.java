@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MIN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_POS_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MID;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -10,7 +13,6 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.apache.commons.math3.stat.descriptive.moment.VectorialCovariance;
 import org.firstinspires.ftc.teamcode.MecanumDriveBase;
 import org.firstinspires.ftc.teamcode.OpModeBase;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -41,6 +43,9 @@ public abstract class AutonomousOpBase extends OpModeBase {
     double Tdir;
     double Sdir;
     StartPosition startPosition;
+    PropPosition propPosition;
+
+
     // all base cases are blueFront oriented
 
     public Trajectory buildSpikePixelTraj(Pose2d start) {
@@ -59,7 +64,7 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public TrajectorySequence buildSpikeTraj(Pose2d start, PropPosition position) {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
         double x = startPosition.offset * 2;
-        double y = teamColour.direction;
+        double y = Tdir;
         // put spike pixels boardside
         if(startPosition.equals(StartPosition.BACK)){
             x += SPIKE_BACK_OFFSET;
@@ -92,7 +97,7 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public TrajectorySequence buildBackdropTraj(Pose2d start, PropPosition position) {
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(start);
         double x = DROP_X;
-        double y = teamColour.direction;
+        double y = Tdir;
         switch (position) {
             case CENTER:
                 y *= DROP_CENTER;
@@ -146,6 +151,20 @@ public abstract class AutonomousOpBase extends OpModeBase {
         this.startPosition = startPosition;
         Tdir = teamColour.direction;
         Sdir = startPosition.direction;
+    }
+
+    public void init2(){
+        drive.armMotor.setTargetPosition(ARM_POS_INTAKE);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(0.5);
+        armMacroClose();
+        propPosition = getPropPosition();
+        drive.wrist.setPosition(WRIST_MID);
+        sleep(100);
+        drive.armMotor.setTargetPosition(ARM_MIN);
+        drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        drive.armMotor.setPower(0.5);
+        armMacroClose();
     }
 
     public void armMacroClose() {

@@ -30,13 +30,14 @@ public class DriveConstants {
     public static int ARM_MAX = 4000;
     public static double DRONE_LAUNCH_POS = 0;
     public static double DRONE_REST_POS = 0.5;
-    public static double CLAW_CLOSE = 1;
-    public static double CLAW_OPEN = 0.755;
+    public static double CLAW_CLOSE = 0.95;
+    public static double CLAW_OPEN = 0.62;
     public static double WRIST_UP = 0;
     public static double WRIST_DOWN = 0.6;
+    public static double WRIST_MID= 0.23;
     public static double WRIST_INCREMENT = 0.01;
     public static int ARM_POS_OUTPUT = 3100;
-    public static int ARM_POS_INTAKE = ARM_MIN + 50;
+    public static int ARM_POS_INTAKE = 250;
     public static double WRIST_OUTPUT = 0;
     public static double WRIST_INTAKE = 0.58;
     public static double DEAD_BAND = 0.05;
@@ -52,7 +53,7 @@ public class DriveConstants {
     public static int GAIN = 125;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
-    public static double BACKSTAGE_OFFSET = -48;
+    public static double BACKSTAGE_OFFSET = -24;
 
 
     public static String IMAGE_PATH = "/images/centerstage.webp";

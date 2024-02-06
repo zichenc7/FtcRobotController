@@ -32,22 +32,23 @@ public class BlueBackOp extends AutonomousOpBase {
 
         initialization(TeamColour.BLUE, StartPosition.BACK);
 
-        Pose2d startPose = new Pose2d(START_X + startPosition.offset + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2 + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         waitForStart();
 
         if (isStopRequested()) return;
         sleep(5000);
+        init2();
+        telemetry.addData("HI", propPosition.toString());
+        telemetry.update();
 
-        PropPosition prop = getPropPosition();
         Trajectory preSpike = buildSpikePixelTraj(startPose);
-        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), prop);
+        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), propPosition);
         TrajectorySequence toDrop = driveToBoard(spike.end());
-        TrajectorySequence drop = buildBackdropTraj(toDrop.end(), prop);
+        TrajectorySequence drop = buildBackdropTraj(toDrop.end(), propPosition);
         TrajectorySequence park = buildParkTraj(drop.end());
 
-        drive.wrist.setPosition(WRIST_DOWN);
         drive.followTrajectory(preSpike);
         drive.followTrajectorySequence(spike);
         drive.followTrajectorySequence(toDrop);

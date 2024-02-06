@@ -15,7 +15,6 @@ public class MeepMeepTesting {
     // always starting boardside
     public static double START_X = 24 - WIDTH / 2;
     public static double START_Y = 72 - (LENGTH / 2);
-    public static double offset = -48;
     public static double bonus = -6.22;
     public static double BONUS_OFFSET = -6.22;
     public static double BASE_X = 34, BASE_Y = 36, BASE_H = 180;
@@ -31,11 +30,11 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(600);
         PropPosition position = PropPosition.CENTER;
-        TeamColour teamColour = TeamColour.RED;
+        TeamColour teamColour = TeamColour.BLUE;
         StartPosition startPosition = StartPosition.BACK;
         double Tdir = teamColour.direction;
         double Sdir = startPosition.direction;
-        offset = startPosition.offset;
+        double offset = startPosition.offset;
         if(startPosition.equals(StartPosition.FRONT)){ bonus = 0;}
         Pose2d start = new Pose2d(START_X + offset * 2 + bonus, Tdir * START_Y, Math.toRadians(-90 * Tdir));
 

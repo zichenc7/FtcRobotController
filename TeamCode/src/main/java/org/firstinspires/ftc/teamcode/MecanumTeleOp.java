@@ -24,7 +24,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 @TeleOp
 public class MecanumTeleOp extends OpModeBase {
-    public ElapsedTime runtime = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -44,36 +43,38 @@ public class MecanumTeleOp extends OpModeBase {
             return;
         }
 
-
-        GamepadEx gp1 = new GamepadEx(gamepad1);
-        GamepadEx gp2 = new GamepadEx(gamepad2);
-
+        Gamepad g1cur = new Gamepad();
+        Gamepad g1prev= new Gamepad();
+        Gamepad g2cur= new Gamepad();
+        Gamepad g2prev = new Gamepad();
 
         while (opModeIsActive()) {
-            double y = deadband(gp1.getLeftY()) * DRIVE_MULTI; // Remember, Y stick value is reversed
-            double x = -deadband(gp1.getLeftX()) * DRIVE_MULTI;
-            double rx = -deadband(gp1.getRightX()) * DRIVE_MULTI;
-            double armUp = deadband(gp2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * ARM_MULTI;
-            double armDown = -deadband(gp2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)) * ARM_MULTI;
+            g1prev.copy(g1cur);
+            g2prev.copy(g2cur);
+            g1cur.copy(gamepad1);
+            g2cur.copy(gamepad2);
 
-            if (gamepad1.start && gamepad1.x) {
+            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
+            double x = -deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
+            double rx = -deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
+            double armUp = deadband(gamepad2.left_trigger) * ARM_MULTI;
+            double armDown = -deadband(gamepad2.right_trigger) * ARM_MULTI;
+
+            if (gamepad1.start && !g1prev.start) {
                 drive.imu.resetYaw();
                 poseStorage = drive.getPoseEstimate();
                 drive.setPoseEstimate(new Pose2d());
                 telemetry.log().add(runtime + " IMU reset");
-                sleep(100);
             }
-            if (gamepad2.back) {
+            if (gamepad2.back && !g2prev.back) {
                launchDrone();
                telemetry.log().add(runtime + " Drone launched");
-               sleep(100);
             }
-            if (gamepad2.a) {
+            if (gamepad2.a && !g2prev.a) {
                 clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
-                sleep(100);
             }
-            if (gamepad1.y) {
+            if (gamepad1.y && !g1prev.y) {
                 if (DRIVE_MULTI != 0.5) {
                     DRIVE_MULTI = 0.5;
                     telemetry.log().add(runtime + " Slow Drive Deactivated: " + DRIVE_MULTI*2);
@@ -81,9 +82,8 @@ public class MecanumTeleOp extends OpModeBase {
                     DRIVE_MULTI = 0.25;
                     telemetry.log().add(runtime + " Slow Drive Activated: " + DRIVE_MULTI*2);
                 }
-                sleep(100);
             }
-            if (gamepad1.b) {
+            if (gamepad1.b && !g1prev.b) {
                 if (DRIVE_MULTI != 0.5) {
                     DRIVE_MULTI = 0.5;
                     telemetry.log().add(runtime + " Fast Drive Deactivated: " + DRIVE_MULTI*2);
@@ -91,27 +91,24 @@ public class MecanumTeleOp extends OpModeBase {
                     DRIVE_MULTI = 1;
                     telemetry.log().add(runtime + " Fast Drive Activated: " + DRIVE_MULTI*2);
                 }
-                sleep(100);
             }
 
-
-
-            if (gamepad2.dpad_down) {
+            if (gamepad2.dpad_down && !g2prev.dpad_down) {
                 armIntakeMacro();
                 telemetry.log().add(runtime + " Arm Intake");
             }
-            if (gamepad2.dpad_up) {
+            if (gamepad2.dpad_up && !g2prev.dpad_up) {
                 armOutputMacro();
                 telemetry.log().add(runtime + " Arm Output");
             }
-            if (gamepad2.x) {
+            if (gamepad2.x && !g2prev.x) {
                 wristUp();
                 telemetry.log().add(runtime + " Wrist Up");
             }
 
-            if (gp2.isDown(GamepadKeys.Button.RIGHT_BUMPER)){
+            if (gamepad2.right_bumper){
                 wristModify(-WRIST_INCREMENT);
-            } else if (gp2.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
+            } else if (gamepad2.left_bumper) {
                 wristModify(WRIST_INCREMENT);
             }
 
