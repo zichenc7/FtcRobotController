@@ -14,8 +14,10 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -61,6 +63,10 @@ public class MecanumTeleOp extends OpModeBase {
             double armDown = -deadband(gamepad2.right_trigger) * ARM_MULTI;
 
             if (gamepad1.start && !g1prev.start) {
+                drive.imu = hardwareMap.get(IMU.class, "imu");
+                IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                        DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
+                drive.imu.initialize(parameters);
                 drive.imu.resetYaw();
                 poseStorage = drive.getPoseEstimate();
                 drive.setPoseEstimate(new Pose2d());
