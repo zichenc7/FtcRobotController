@@ -3,22 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRIVE_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INCREMENT;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 import static org.firstinspires.ftc.teamcode.DriveConstants.deadband;
-import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -149,6 +144,7 @@ public class MecanumTeleOp extends OpModeBase {
             telemetry.addData("Arm", "Motor error:" + Math.abs( armPos - armTargetPos));
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", drive.wrist.getPosition());
+            telemetry.addData("IMU", drive.imu.getConnectionInfo());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }
