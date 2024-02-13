@@ -28,7 +28,7 @@ public class RedBackOp extends AutonomousOpBase {
         initialization(TeamColour.RED, StartPosition.BACK);
 
 
-        Pose2d startPose = new Pose2d(START_X + startPosition.offset + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2, START_Y * teamColour.direction, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
         waitForStart();

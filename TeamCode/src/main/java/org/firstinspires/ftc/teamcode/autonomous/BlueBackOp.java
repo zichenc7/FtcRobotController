@@ -32,14 +32,14 @@ public class BlueBackOp extends AutonomousOpBase {
 
         initialization(TeamColour.BLUE, StartPosition.BACK);
 
-        Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2 + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2, START_Y * teamColour.direction, Math.toRadians(270));
         drive.setPoseEstimate(startPose);
 
         waitForStart();
-
         if (isStopRequested()) return;
         sleep(5000);
         init2();
+        visionPortal.close();
         telemetry.addData("HI", propPosition.toString());
         telemetry.update();
 
@@ -53,21 +53,8 @@ public class BlueBackOp extends AutonomousOpBase {
         drive.followTrajectorySequence(spike);
         drive.followTrajectorySequence(toDrop);
         drive.followTrajectorySequence(drop);
-        armOutputMacro();
-        armMacroClose();
+        scoreParkMotions();
         drive.followTrajectorySequence(park);
-
-        //Trajectory park = drive.trajectoryBuilder(startPose)
-            //    .strafeLeft(40)
-             //   .build();
-
-        //drive.followTrajectory(park);
-        //drive.followTrajectorySequence(traj3);
-        //armOutputMacro();
-        //drive.clawServo.setPosition(CLAW_MIN); // open claw
-        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
-
-        //drive.followTrajectory(traj);
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();
@@ -76,6 +63,5 @@ public class BlueBackOp extends AutonomousOpBase {
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
         poseStorage = drive.getPoseEstimate();
-        visionPortal.close();
     }
 }
