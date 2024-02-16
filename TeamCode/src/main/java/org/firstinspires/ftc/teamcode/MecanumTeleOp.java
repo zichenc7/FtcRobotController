@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MULTI;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRIVE_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INCREMENT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.deadband;
@@ -10,6 +12,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -136,6 +139,9 @@ public class MecanumTeleOp extends OpModeBase {
                             rx
                     )
             );
+            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
+            //if(clawPos == CLAW_OPEN) drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
+            //else if (clawPos == CLAW_CLOSE) drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_GREEN);
 
             telemetry.addData("Controller", "LX: (%.5f) LY: (%.5f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
             //telemetry.addData("Drive", "FL: (%.5f) BL: (%.5f) FR: (%.5f) BR: (%.5f)", mp[0], mp[1], mp[2], mp[3]);

@@ -36,8 +36,8 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public static double SC_X = 21, SC_Y = 25;
     public static double SR_X = 9, SR_Y = 36, SR_H = -90;
     public static double SL_X = 31, SL_Y = 36, SL_H = 90;
-    public static double DROP_X = 38, DROP_Y = 48;
-    public static double DROP_CENTER = 35, DROP_OFFSET = 5;
+    public static double DROP_X = 40, DROP_Y = 48;
+    public static double DROP_CENTER = 35, DROP_OFFSET = 7;
     public static double PARK_X = 60, PARK_Y = 60;
     public static double BOARD_X1 = -55, BOARD_Y1 = 12;
     public static double BOARD_X2 = 38, BOARD_Y2 = 12;

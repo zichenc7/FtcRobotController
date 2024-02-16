@@ -25,6 +25,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationCon
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -84,6 +85,7 @@ public class MecanumDriveBase extends MecanumDrive {
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
     public DcMotor armMotor;
     public Servo droneLaunchServo, clawServo, wrist;
+    public RevBlinkinLedDriver lights;
     private List<DcMotorEx> motors;
 
     public IMU imu;
@@ -129,6 +131,7 @@ public class MecanumDriveBase extends MecanumDrive {
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         wrist = hardwareMap.get(Servo.class, "wrist");
+        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();

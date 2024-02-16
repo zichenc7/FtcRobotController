@@ -47,6 +47,7 @@ public class DriveConstants {
     public static double percentDifference(double target, double current) {
         return abs(((target - current) / target) * 100);
     }
+
     public static boolean USE_WEBCAM = true;
 
     public static int EXPOSURE_MS = 6;
@@ -54,7 +55,6 @@ public class DriveConstants {
     // to be determined
     public static int DESIRED_DISTANCE = 10;
     public static double BACKSTAGE_OFFSET = -24;
-
 
     public static String IMAGE_PATH = "/images/centerstage.webp";
     /*
