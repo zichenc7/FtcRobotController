@@ -28,6 +28,7 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -95,8 +96,10 @@ public abstract class OpModeBase extends LinearOpMode {
     }
     public void clawModify() throws InterruptedException {
         if (clawPos == CLAW_OPEN){
+            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
             clawPos = CLAW_CLOSE;
         } else if (clawPos == CLAW_CLOSE){
+            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
             clawPos = CLAW_OPEN;
         }
     }

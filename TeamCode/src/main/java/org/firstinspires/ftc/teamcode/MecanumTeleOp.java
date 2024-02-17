@@ -29,7 +29,7 @@ public class MecanumTeleOp extends OpModeBase {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
-        drive.setPoseEstimate(new Pose2d());
+        drive.setPoseEstimate(poseStorage);
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -66,7 +66,7 @@ public class MecanumTeleOp extends OpModeBase {
                         DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
                 drive.imu.initialize(parameters);
                 drive.imu.resetYaw();
-                poseStorage = drive.getPoseEstimate();
+                poseStorage = new Pose2d();
                 drive.setPoseEstimate(new Pose2d());
                 telemetry.log().add(runtime + " IMU reset");
             }
@@ -139,9 +139,6 @@ public class MecanumTeleOp extends OpModeBase {
                             rx
                     )
             );
-            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
-            //if(clawPos == CLAW_OPEN) drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_BLUE);
-            //else if (clawPos == CLAW_CLOSE) drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.DARK_GREEN);
 
             telemetry.addData("Controller", "LX: (%.5f) LY: (%.5f)", gamepad1.left_stick_x, gamepad1.left_stick_y);
             //telemetry.addData("Drive", "FL: (%.5f) BL: (%.5f) FR: (%.5f) BR: (%.5f)", mp[0], mp[1], mp[2], mp[3]);

@@ -37,29 +37,20 @@ public class RedFrontOp extends AutonomousOpBase {
         waitForStart();
         if (isStopRequested()) return;
         sleep(5000);
-
-        PropPosition prop = getPropPosition();
-
-        Trajectory traj = buildSpikePixelTraj(startPose);
-        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
+        init2();
 
 
-        //
-        drive.followTrajectory(traj);
-        drive.followTrajectorySequence(traj2);
-        //drive.followTrajectorySequence(traj3);
-        //armOutputMacro();
-        //drive.clawServo.setPosition(CLAW_MIN); // open claw
-        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
+        Trajectory preSpike = buildSpikePixelTraj(startPose);
+        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), propPosition);
+        TrajectorySequence drop = buildBackdropTraj(spike.end(), propPosition);
+        TrajectorySequence park = buildParkTraj(drop.end());
 
-          /*
-        Trajectory park = drive.trajectoryBuilder(startPose)
-                        .strafeRight(40)
-                        .build();
+        drive.followTrajectory(preSpike);
+        drive.followTrajectorySequence(spike);
+        drive.followTrajectorySequence(drop);
+        scoreParkMotions();
+        drive.followTrajectorySequence(park);
 
-         drive.followTrajectory(park);
-
-         */
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();

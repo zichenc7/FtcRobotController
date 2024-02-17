@@ -36,26 +36,22 @@ public class RedBackOp extends AutonomousOpBase {
         if (isStopRequested()) return;
 
         sleep(5000);
-        PropPosition prop = getPropPosition();
-
-        Trajectory traj = buildSpikePixelTraj(startPose);
-        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-
-        //Trajectory park = drive.trajectoryBuilder(startPose)
-              //  .strafeRight(40)
-              //  .build();
-
-        //drive.followTrajectory(park);
+        init2();
 
 
-        drive.followTrajectory(traj);
-        drive.followTrajectorySequence(traj2);
-        //drive.followTrajectorySequence(traj3);
-        //armOutputMacro();
-        //drive.clawServo.setPosition(CLAW_MIN); // open claw
-        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
+        Trajectory preSpike = buildSpikePixelTraj(startPose);
+        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), propPosition);
+        TrajectorySequence toDrop = driveToBoard(spike.end());
+        TrajectorySequence drop = buildBackdropTraj(toDrop.end(), propPosition);
+        TrajectorySequence park = buildParkTraj(drop.end());
 
-        //drive.followTrajectory(traj);
+        drive.followTrajectory(preSpike);
+        drive.followTrajectorySequence(spike);
+        drive.followTrajectorySequence(toDrop);
+        drive.followTrajectorySequence(drop);
+        scoreParkMotions();
+        drive.followTrajectorySequence(park);
+
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();
