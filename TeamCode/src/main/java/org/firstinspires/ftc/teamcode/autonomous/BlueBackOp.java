@@ -1,18 +1,13 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
 /*
@@ -43,13 +38,11 @@ public class BlueBackOp extends AutonomousOpBase {
         telemetry.addData("HI", propPosition.toString());
         telemetry.update();
 
-        Trajectory preSpike = buildSpikePixelTraj(startPose);
-        TrajectorySequence spike = buildSpikeTraj(preSpike.end(), propPosition);
+        TrajectorySequence spike = buildSpikeTraj(startPose);
         TrajectorySequence toDrop = driveToBoard(spike.end());
-        TrajectorySequence drop = buildBackdropTraj(toDrop.end(), propPosition);
+        TrajectorySequence drop = buildBackdropTraj(toDrop.end());
         TrajectorySequence park = buildParkTraj(drop.end());
 
-        drive.followTrajectory(preSpike);
         drive.followTrajectorySequence(spike);
         drive.followTrajectorySequence(toDrop);
         drive.followTrajectorySequence(drop);
