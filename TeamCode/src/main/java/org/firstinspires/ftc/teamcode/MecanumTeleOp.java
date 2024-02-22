@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-// 192.168.43.1:8080/dash
 @Config
 @TeleOp
 public class MecanumTeleOp extends OpModeBase {
