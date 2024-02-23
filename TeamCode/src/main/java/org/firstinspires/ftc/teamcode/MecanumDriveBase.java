@@ -66,8 +66,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @Config
 public class MecanumDriveBase extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 1);
 
     public static double LATERAL_MULTIPLIER = 1.185;
 

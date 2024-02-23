@@ -32,7 +32,7 @@ public class BlueBackOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
-        sleep(5000);
+        sleep(3000);
         init2();
         visionPortal.close();
         telemetry.addData("HI", propPosition.toString());

@@ -29,9 +29,9 @@ public abstract class AutonomousOpBase extends OpModeBase {
     public static double START_X = 12;
     public static double START_Y = 72 - (LENGTH / 2);
     // FIXME determine this offset
-    public static double SPIKE_BACK_OFFSET = -6;
+    public static double SPIKE_BACK_OFFSET = -15.5;
     public static double BASE_X = 34, BASE_Y = 36, BASE_H = 180;
-    public static double SC_X = 12, SC_Y = 33;
+    public static double SC_X = 13, SC_Y = 33;
     public static double CENTER_BASE_X = 12, CENTER_BASE_Y = 36;
     public static double SR_X = 9, SR_Y = 36, SR_H = -90;
     public static double SL_X = 31, SL_Y = 36, SL_H = 90;
@@ -64,18 +64,17 @@ public abstract class AutonomousOpBase extends OpModeBase {
         }
         Pose2d potentialBase = new Pose2d(x, y, heading);
         Pose2d base = potentialBase;
-        if (propPosition == PropPosition.CENTER)
+        if (propPosition == PropPosition.CENTER) {
             base = new Pose2d(startPosition.offset * 2 + CENTER_BASE_X, CENTER_BASE_Y * Tdir, start.getHeading());
-        else builder.lineToLinearHeading(base);
+        } else {
+            builder.lineToLinearHeading(base);
+        }
 
         x = startPosition.offset * 2;
         y = Tdir;
         // put spike pixels boardside
         // TODO: fix autonomous coordinates
-        if (teamColour == TeamColour.RED) {
-            if (propPosition == PropPosition.LEFT) propPosition = PropPosition.RIGHT;
-            else if (propPosition == PropPosition.RIGHT) propPosition = PropPosition.LEFT;
-        }
+
 
         if (startPosition == StartPosition.BACK && propPosition != PropPosition.CENTER) {
             x += SPIKE_BACK_OFFSET;
@@ -118,10 +117,10 @@ public abstract class AutonomousOpBase extends OpModeBase {
                 y *= DROP_CENTER;
                 break;
             case RIGHT:
-                y *= DROP_CENTER - DROP_OFFSET * Tdir;
+                y *= DROP_CENTER - DROP_OFFSET;
                 break;
             case LEFT:
-                y *= DROP_CENTER + DROP_OFFSET * Tdir;
+                y *= DROP_CENTER + DROP_OFFSET;
                 break;
         }
         builder.lineToSplineHeading(new Pose2d(new Vector2d(x, y), Math.toRadians(180)));
@@ -175,6 +174,16 @@ public abstract class AutonomousOpBase extends OpModeBase {
         drive.armMotor.setPower(0.5);
         armMacroClose();
         propPosition = getPropPosition();
+
+        if (teamColour == TeamColour.RED) {
+            if (propPosition == PropPosition.LEFT) {
+                propPosition = PropPosition.RIGHT;
+            } else if (propPosition == PropPosition.RIGHT) {
+                propPosition = PropPosition.LEFT;
+            }
+        }
+
+
         drive.wrist.setPosition(WRIST_MID);
         sleep(100);
         drive.armMotor.setTargetPosition(ARM_MIN);
