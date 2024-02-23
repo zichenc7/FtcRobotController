@@ -25,7 +25,6 @@ public class RedBackOp extends AutonomousOpBase {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         initialization(TeamColour.RED, StartPosition.BACK);
 
-
         Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2, START_Y * teamColour.direction, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
@@ -33,20 +32,20 @@ public class RedBackOp extends AutonomousOpBase {
 
         if (isStopRequested()) return;
 
-        sleep(5000);
+        sleep(TIME_OUT);
         init2();
-
+        visionPortal.close();
 
         TrajectorySequence spike = buildSpikeTraj(startPose);
-        TrajectorySequence toDrop = driveToBoard(spike.end());
-        TrajectorySequence drop = buildBackdropTraj(toDrop.end());
-        TrajectorySequence park = buildParkTraj(drop.end());
+        //TrajectorySequence toDrop = driveToBoard(spike.end());
+        //TrajectorySequence drop = buildBackdropTraj(toDrop.end());
+        //TrajectorySequence park = buildParkTraj(drop.end());
 
         drive.followTrajectorySequence(spike);
-        drive.followTrajectorySequence(toDrop);
-        drive.followTrajectorySequence(drop);
-        scoreParkMotions();
-        drive.followTrajectorySequence(park);
+        //drive.followTrajectorySequence(toDrop);
+        //drive.followTrajectorySequence(drop);
+        //scoreParkMotions();
+        //drive.followTrajectorySequence(park);
 
 
         while (!isStopRequested() && opModeIsActive()) {
@@ -56,6 +55,5 @@ public class RedBackOp extends AutonomousOpBase {
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
         poseStorage = drive.getPoseEstimate();
-        visionPortal.close();
     }
 }

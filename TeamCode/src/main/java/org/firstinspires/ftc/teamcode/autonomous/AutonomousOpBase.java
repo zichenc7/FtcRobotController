@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.vision.TeamColour;
 public abstract class AutonomousOpBase extends OpModeBase {
     public static double WIDTH = 17.78;
     public static double LENGTH = 17.5;
+    public static long TIME_OUT = 5000;
     // always starting boardside
     public static double START_X = 12;
     public static double START_Y = 72 - (LENGTH / 2);

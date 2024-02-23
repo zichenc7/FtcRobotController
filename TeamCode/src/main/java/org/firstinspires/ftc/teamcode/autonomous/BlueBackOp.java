@@ -32,22 +32,20 @@ public class BlueBackOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
-        sleep(3000);
+        sleep(TIME_OUT);
         init2();
         visionPortal.close();
-        telemetry.addData("HI", propPosition.toString());
-        telemetry.update();
 
         TrajectorySequence spike = buildSpikeTraj(startPose);
-        TrajectorySequence toDrop = driveToBoard(spike.end());
-        TrajectorySequence drop = buildBackdropTraj(toDrop.end());
-        TrajectorySequence park = buildParkTraj(drop.end());
+        //TrajectorySequence toDrop = driveToBoard(spike.end());
+        //TrajectorySequence drop = buildBackdropTraj(toDrop.end());
+        //TrajectorySequence park = buildParkTraj(drop.end());
 
         drive.followTrajectorySequence(spike);
-        drive.followTrajectorySequence(toDrop);
-        drive.followTrajectorySequence(drop);
-        scoreParkMotions();
-        drive.followTrajectorySequence(park);
+        //drive.followTrajectorySequence(toDrop);
+        //drive.followTrajectorySequence(drop);
+        //scoreParkMotions();
+        //drive.followTrajectorySequence(park);
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();

@@ -15,12 +15,11 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.DRONE_REST_POS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.EXPOSURE_MS;
 import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MID;
-import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
-import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

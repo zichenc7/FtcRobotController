@@ -31,9 +31,9 @@ public class RedFrontOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
-        sleep(5000);
+        sleep(TIME_OUT);
         init2();
-
+        visionPortal.close();
 
         TrajectorySequence spike = buildSpikeTraj(startPose);
         TrajectorySequence drop = buildBackdropTraj(spike.end());
@@ -44,13 +44,11 @@ public class RedFrontOp extends AutonomousOpBase {
         scoreParkMotions();
         drive.followTrajectorySequence(park);
 
-
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();
         }
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
         poseStorage = drive.getPoseEstimate();
-        visionPortal.close();
     }
 }
