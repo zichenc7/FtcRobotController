@@ -106,7 +106,6 @@ public class TrajectorySequenceRunner {
 
         fieldOverlay.setAlpha(0.75);
         fieldOverlay.drawImage(IMAGE_PATH, 0, 0, 144, 144);
-        // we might want to rotate the image
         fieldOverlay.setAlpha(1.0);
         fieldOverlay.drawGrid(0, 0, 144, 144, 7, 7);
 

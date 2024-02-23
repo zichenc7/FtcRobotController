@@ -1,40 +1,34 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.DriveConstants.ARM_MULTI;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_CLOSE;
+import static org.firstinspires.ftc.teamcode.DriveConstants.CLAW_OPEN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.DRIVE_MULTI;
-import static org.firstinspires.ftc.teamcode.DriveConstants.TURN_MULTI;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INCREMENT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.deadband;
-import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-
-// 192.168.43.1:8080/dash
 @Config
 @TeleOp
 public class MecanumTeleOp extends OpModeBase {
-    public ElapsedTime runtime = new ElapsedTime();
-    public double speedMulti = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
-        drive.setPoseEstimate(new Pose2d());
-
-
+        drive.setPoseEstimate(poseStorage);
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -48,63 +42,76 @@ public class MecanumTeleOp extends OpModeBase {
             return;
         }
 
-
-        GamepadEx gp1 = new GamepadEx(gamepad1);
-        GamepadEx gp2 = new GamepadEx(gamepad2);
-
+        Gamepad g1cur = new Gamepad();
+        Gamepad g1prev= new Gamepad();
+        Gamepad g2cur= new Gamepad();
+        Gamepad g2prev = new Gamepad();
 
         while (opModeIsActive()) {
-            double y = -deadband(gp1.getLeftY()) * DRIVE_MULTI * speedMulti; // Remember, Y stick value is reversed
-            double x = -deadband(gp1.getLeftX()) * DRIVE_MULTI * speedMulti;
-            double rx = -deadband(gp1.getRightX()) * TURN_MULTI * speedMulti;
-            double armUp = deadband(gp2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)) * ARM_MULTI;
-            double armDown = -deadband(gp2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)) * ARM_MULTI;
+            g1prev.copy(g1cur);
+            g2prev.copy(g2cur);
+            g1cur.copy(gamepad1);
+            g2cur.copy(gamepad2);
 
-            if (gp1.wasJustPressed(GamepadKeys.Button.START) && gp1.wasJustPressed(GamepadKeys.Button.X)) {
+            double y = -deadband(gamepad1.left_stick_y) * DRIVE_MULTI; // Remember, Y stick value is reversed
+            double x = -deadband(gamepad1.left_stick_x) * DRIVE_MULTI;
+            double rx = -deadband(gamepad1.right_stick_x) * DRIVE_MULTI;
+            double armUp = deadband(gamepad2.left_trigger) * ARM_MULTI;
+            double armDown = -deadband(gamepad2.right_trigger) * ARM_MULTI;
+
+            if (gamepad1.start && !g1prev.start) {
+                drive.imu = hardwareMap.get(IMU.class, "imu");
+                IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                        DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
+                drive.imu.initialize(parameters);
                 drive.imu.resetYaw();
-                poseStorage = drive.getPoseEstimate();
+                poseStorage = new Pose2d();
                 drive.setPoseEstimate(new Pose2d());
                 telemetry.log().add(runtime + " IMU reset");
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.BACK)) {
+            if (gamepad2.back && !g2prev.back) {
                launchDrone();
                telemetry.log().add(runtime + " Drone launched");
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.A)) {
+            if (gamepad2.a && !g2prev.a) {
                 clawModify();
                 telemetry.log().add(runtime + " Claw opened/closed");
             }
-            if (gp1.wasJustPressed(GamepadKeys.Button.Y)) {
-                if (!(speedMulti == 0.25)){
-                    speedMulti = 0.25;
+            if (gamepad1.y && !g1prev.y) {
+                if (DRIVE_MULTI != 0.5) {
+                    DRIVE_MULTI = 0.5;
+                    telemetry.log().add(runtime + " Slow Drive Deactivated: " + DRIVE_MULTI*2);
                 } else {
-                    speedMulti = 1;
+                    DRIVE_MULTI = 0.25;
+                    telemetry.log().add(runtime + " Slow Drive Activated: " + DRIVE_MULTI*2);
                 }
-                telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
             }
-            if (gp1.wasJustPressed(GamepadKeys.Button.X)) {
-                if (!(speedMulti == 1.5)){
-                    speedMulti = 1.5;
+            if (gamepad1.b && !g1prev.b) {
+                if (DRIVE_MULTI != 0.5) {
+                    DRIVE_MULTI = 0.5;
+                    telemetry.log().add(runtime + " Fast Drive Deactivated: " + DRIVE_MULTI*2);
                 } else {
-                    speedMulti = 1;
+                    DRIVE_MULTI = 1;
+                    telemetry.log().add(runtime + " Fast Drive Activated: " + DRIVE_MULTI*2);
                 }
-                telemetry.log().add(runtime + "Drive multiplier changed to " + speedMulti);
             }
 
-
-
-            if (gp2.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+            if (gamepad2.dpad_down && !g2prev.dpad_down) {
                 armIntakeMacro();
-                telemetry.log().add(runtime + "set to pick up position");
+                telemetry.log().add(runtime + " Arm Intake");
             }
-            if (gp2.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+            if (gamepad2.dpad_up && !g2prev.dpad_up) {
                 armOutputMacro();
-                telemetry.log().add(runtime + " set to release position");
+                telemetry.log().add(runtime + " Arm Output");
+            }
+            if (gamepad2.x && !g2prev.x) {
+                wristUp();
+                telemetry.log().add(runtime + " Wrist Up");
             }
 
-            if (gp2.isDown(GamepadKeys.Button.RIGHT_BUMPER)){
+            if (gamepad2.right_bumper){
                 wristModify(-WRIST_INCREMENT);
-            } else if (gp2.isDown(GamepadKeys.Button.LEFT_BUMPER)) {
+            } else if (gamepad2.left_bumper) {
                 wristModify(WRIST_INCREMENT);
             }
 
@@ -139,6 +146,7 @@ public class MecanumTeleOp extends OpModeBase {
             telemetry.addData("Arm", "Motor error:" + Math.abs( armPos - armTargetPos));
             telemetry.addData("Claw", "Claw position: (%.5f)", clawPos);
             telemetry.addData("Arm Servo", "position: (%.5f)", drive.wrist.getPosition());
+            telemetry.addData("IMU", drive.imu.getConnectionInfo());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.update();
         }

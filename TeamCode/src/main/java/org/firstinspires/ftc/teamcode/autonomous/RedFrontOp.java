@@ -4,16 +4,11 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
-import java.util.List;
 
 /*
  * This is a simple routine to test translational drive capabilities.
@@ -37,29 +32,18 @@ public class RedFrontOp extends AutonomousOpBase {
         waitForStart();
         if (isStopRequested()) return;
         sleep(5000);
-
-        PropPosition prop = getPropPosition();
-
-        Trajectory traj = buildSpikePixelTraj(startPose);
-        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
+        init2();
 
 
-        //
-        drive.followTrajectory(traj);
-        drive.followTrajectorySequence(traj2);
-        //drive.followTrajectorySequence(traj3);
-        //armOutputMacro();
-        //drive.clawServo.setPosition(CLAW_MIN); // open claw
-        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
+        TrajectorySequence spike = buildSpikeTraj(startPose);
+        TrajectorySequence drop = buildBackdropTraj(spike.end());
+        TrajectorySequence park = buildParkTraj(drop.end());
 
-          /*
-        Trajectory park = drive.trajectoryBuilder(startPose)
-                        .strafeRight(40)
-                        .build();
+        drive.followTrajectorySequence(spike);
+        drive.followTrajectorySequence(drop);
+        scoreParkMotions();
+        drive.followTrajectorySequence(park);
 
-         drive.followTrajectory(park);
-
-         */
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();

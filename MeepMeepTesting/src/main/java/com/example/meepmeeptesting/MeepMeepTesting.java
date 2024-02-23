@@ -13,17 +13,17 @@ public class MeepMeepTesting {
     public static double WIDTH = 17.78;
     public static double LENGTH = 17.5;
     // always starting boardside
-    public static double START_X = 24 - WIDTH / 2;
+    public static double START_X = 12;
     public static double START_Y = 72 - (LENGTH / 2);
-    public static double offset = -48;
-    public static double bonus = -6.22;
     public static double BONUS_OFFSET = -6.22;
+    public static double SPIKE_BACK_OFFSET = -10;
+
     public static double BASE_X = 34, BASE_Y = 36, BASE_H = 180;
-    public static double SC_X = 15.11, SC_Y = 27;
-    public static double SR_X = 8, SR_Y = 36, SR_H = -90;
-    public static double SL_X = 29, SL_Y = 36, SL_H = 90;
-    public static double DROP_X = 49, DROP_Y = 48;
-    public static double DROP_CENTER = 35, DROP_OFFSET = 5;
+    public static double SC_X = 12, SC_Y = 32;
+    public static double SR_X = 9, SR_Y = 36, SR_H = -90;
+    public static double SL_X = 31, SL_Y = 36, SL_H = 90;
+    public static double DROP_X = 39, DROP_Y = 48;
+    public static double DROP_CENTER = 35, DROP_OFFSET = 7;
     public static double PARK_X = 60, PARK_Y = 60;
     public static double BOARD_X1 = -55, BOARD_Y1 = 12;
     public static double BOARD_X2 = 38, BOARD_Y2 = 12;
@@ -35,26 +35,25 @@ public class MeepMeepTesting {
         StartPosition startPosition = StartPosition.BACK;
         double Tdir = teamColour.direction;
         double Sdir = startPosition.direction;
-        offset = startPosition.offset;
-        if(startPosition.equals(StartPosition.FRONT)){ bonus = 0;}
-        Pose2d start = new Pose2d(START_X + offset * 2 + bonus, Tdir * START_Y, Math.toRadians(-90 * Tdir));
+        double offset = startPosition.offset;
+        Pose2d start = new Pose2d(START_X + offset * 2, Tdir * START_Y, Math.toRadians(-90 * Tdir));
 
         double x = BASE_X * Sdir + offset;
         double y = BASE_Y * Tdir;
         double heading = Math.toRadians(BASE_H);
-        if(startPosition.equals(StartPosition.BACK)){
+        if (startPosition.equals(StartPosition.BACK)) {
             heading = 0;
         }
 
-
         //Vector2d base = new Vector2d(x, y);
-        Pose2d base = new Pose2d(x, y, heading);
+        Pose2d potbase = new Pose2d(x, y, heading);
+        Pose2d base = new Pose2d(12 + startPosition.offset * 2, 36 * Tdir, start.getHeading());
         Vector2d ret = new Vector2d(x, y + 12 * Tdir);
 
         x = offset * 2;
         y = Tdir;
 
-        if(startPosition.equals(StartPosition.BACK)){
+        if (startPosition.equals(StartPosition.BACK) && position != PropPosition.CENTER) {
             x -= 10;
         }
 
@@ -103,9 +102,10 @@ public class MeepMeepTesting {
                 .setDimensions(WIDTH, LENGTH)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(start)
-                                .lineToLinearHeading(base)
+                                //.lineToLinearHeading(finalBase)
                                 .strafeTo(spike)
                                 .strafeTo(base.vec())
+                                .lineToLinearHeading(potbase)
                                 .strafeTo(new Vector2d(BOARD_X1, BOARD_Y1 * Tdir))
                                 .strafeTo(new Vector2d(BOARD_X2, BOARD_Y2 * Tdir))
                                 .lineToSplineHeading(new Pose2d( board, Math.toRadians(180)))

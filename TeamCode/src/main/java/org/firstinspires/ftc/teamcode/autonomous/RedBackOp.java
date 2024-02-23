@@ -4,12 +4,10 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.vision.PropPosition;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
 /*
@@ -28,7 +26,7 @@ public class RedBackOp extends AutonomousOpBase {
         initialization(TeamColour.RED, StartPosition.BACK);
 
 
-        Pose2d startPose = new Pose2d(START_X + startPosition.offset + BONUS_OFFSET, START_Y * teamColour.direction, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(START_X + startPosition.offset * 2, START_Y * teamColour.direction, Math.toRadians(90));
         drive.setPoseEstimate(startPose);
 
         waitForStart();
@@ -36,26 +34,20 @@ public class RedBackOp extends AutonomousOpBase {
         if (isStopRequested()) return;
 
         sleep(5000);
-        PropPosition prop = getPropPosition();
-
-        Trajectory traj = buildSpikePixelTraj(startPose);
-        TrajectorySequence traj2 = buildSpikeTraj(traj.end(), prop);
-
-        //Trajectory park = drive.trajectoryBuilder(startPose)
-              //  .strafeRight(40)
-              //  .build();
-
-        //drive.followTrajectory(park);
+        init2();
 
 
-        drive.followTrajectory(traj);
-        drive.followTrajectorySequence(traj2);
-        //drive.followTrajectorySequence(traj3);
-        //armOutputMacro();
-        //drive.clawServo.setPosition(CLAW_MIN); // open claw
-        //drive.followTrajectorySequence(traj4); // intake macro within this sequence
+        TrajectorySequence spike = buildSpikeTraj(startPose);
+        TrajectorySequence toDrop = driveToBoard(spike.end());
+        TrajectorySequence drop = buildBackdropTraj(toDrop.end());
+        TrajectorySequence park = buildParkTraj(drop.end());
 
-        //drive.followTrajectory(traj);
+        drive.followTrajectorySequence(spike);
+        drive.followTrajectorySequence(toDrop);
+        drive.followTrajectorySequence(drop);
+        scoreParkMotions();
+        drive.followTrajectorySequence(park);
+
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();

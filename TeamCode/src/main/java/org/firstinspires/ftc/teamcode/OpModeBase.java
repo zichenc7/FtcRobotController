@@ -17,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.DriveConstants.GAIN;
 import static org.firstinspires.ftc.teamcode.DriveConstants.USE_WEBCAM;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_INTAKE;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_DOWN;
+import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_MID;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_UP;
 import static org.firstinspires.ftc.teamcode.DriveConstants.WRIST_OUTPUT;
 import static org.firstinspires.ftc.teamcode.DriveConstants.percentDifference;
@@ -27,9 +28,11 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
@@ -57,12 +60,16 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+// 192.168.43.1:8080/dash
+
 public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
+    public ElapsedTime runtime = new ElapsedTime();
+
     public static Pose2d poseStorage = new Pose2d();
     private double clawPos = CLAW_CLOSE;
-    private double wristPos = WRIST_UP;
-    public int armTargetPos = ARM_MIN;
+    private double wristPos = WRIST_MID;
+    public int armTargetPos = 0;
 
     // auto attributes
     public AprilTagProcessor aprilTag;
@@ -91,8 +98,10 @@ public abstract class OpModeBase extends LinearOpMode {
     }
     public void clawModify() throws InterruptedException {
         if (clawPos == CLAW_OPEN){
+            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
             clawPos = CLAW_CLOSE;
         } else if (clawPos == CLAW_CLOSE){
+            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
             clawPos = CLAW_OPEN;
         }
     }
@@ -176,13 +185,24 @@ public abstract class OpModeBase extends LinearOpMode {
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.armMotor.setPower(ARM_MACRO_POWER);
     }
-    public void armIntakeMacro() {
-        armTargetPos = ARM_POS_INTAKE;
+    public void armIntakeMacro() throws InterruptedException {
         wristPos = WRIST_INTAKE;
-        drive.armMotor.setTargetPosition(armTargetPos);
+        clawPos = CLAW_OPEN;
+        drive.clawServo.setPosition(clawPos);
         drive.wrist.setPosition(wristPos);
+        sleep(500);
+        armTargetPos = ARM_POS_INTAKE;
+        drive.armMotor.setTargetPosition(armTargetPos);
         drive.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         drive.armMotor.setPower(ARM_MACRO_POWER);
+    }
+
+
+    public void wristUp() {
+        wristPos = WRIST_UP;
+        clawPos = CLAW_CLOSE;
+        drive.clawServo.setPosition(clawPos);
+        drive.wrist.setPosition(wristPos);
     }
 
     public double[] motorOp(double y, double x, double rx) {
@@ -252,14 +272,7 @@ public abstract class OpModeBase extends LinearOpMode {
                 .build();
 
         prop = new PropProcessor(teamColour);
-        /*
-        tfod = new TfodProcessor.Builder()
-                // use ASSET_NAME if it is an asset?
-                .setModelAssetName(modelName)
-                .setModelLabels(LABELS)
-                .build();
 
-         */
         VisionPortal.Builder builder = new VisionPortal.Builder();
         if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
