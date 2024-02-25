@@ -65,7 +65,6 @@ public abstract class OpModeBase extends LinearOpMode {
     public MecanumDriveBase drive;
     public ElapsedTime runtime = new ElapsedTime();
 
-    public static Pose2d poseStorage = new Pose2d();
     private double clawPos = CLAW_CLOSE;
     private double wristPos = WRIST_MID;
     public int armTargetPos = 0;

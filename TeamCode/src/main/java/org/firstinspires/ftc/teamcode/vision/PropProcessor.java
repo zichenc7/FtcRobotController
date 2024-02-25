@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PropProcessor implements VisionProcessor {
-    public Scalar blueMin = new Scalar(90, 50, 50);
-    public Scalar blueMax = new Scalar(128, 255, 255);
+    // FIXME test this day of pls &&& look at the diagram
+    public Scalar blueMin = new Scalar(90, 150, 50);
+    public Scalar blueMax = new Scalar(125, 255, 255);
     public Scalar red1Min = new Scalar(0, 50, 50);
     public Scalar red1Max = new Scalar(15, 255, 255);
     public Scalar red2Min = new Scalar(170, 50, 50);
@@ -62,7 +63,11 @@ public class PropProcessor implements VisionProcessor {
         // to prevent contours from ballooning in size and slowing down everything.
         contours = new ArrayList<>();
         // masking the frame
+
+
         Mat hsvFrame = new Mat();
+        //Rect rectCrop = new Rect(160, 90, 320, 140);
+        //Mat croppedMat = new Mat(frame, rectCrop);
         Imgproc.cvtColor(frame, hsvFrame, Imgproc.COLOR_RGB2HSV);
 
         Mat mask = new Mat();

@@ -28,7 +28,7 @@ public class MecanumTeleOp extends OpModeBase {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new MecanumDriveBase(hardwareMap);
-        drive.setPoseEstimate(poseStorage);
+        drive.setPoseEstimate(PoseStorage.currentPose);
         // telemetry.setAutoClear(false);
         telemetry.addData("Status", "Initialized");
         telemetry.log().setCapacity(6);
@@ -65,7 +65,6 @@ public class MecanumTeleOp extends OpModeBase {
                         DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
                 drive.imu.initialize(parameters);
                 drive.imu.resetYaw();
-                poseStorage = new Pose2d();
                 drive.setPoseEstimate(new Pose2d());
                 telemetry.log().add(runtime + " IMU reset");
             }
