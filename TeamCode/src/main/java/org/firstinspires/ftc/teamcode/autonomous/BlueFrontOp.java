@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
@@ -48,6 +49,6 @@ public class BlueFrontOp extends AutonomousOpBase {
             drive.update();
         }
         // to transfer robot's position to teleOp
-        poseStorage = drive.getPoseEstimate();
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }

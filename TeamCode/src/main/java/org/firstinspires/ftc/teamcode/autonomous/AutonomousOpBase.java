@@ -32,12 +32,12 @@ public abstract class AutonomousOpBase extends OpModeBase {
     // FIXME determine this offset
     public static double SPIKE_BACK_OFFSET = -15.5;
     public static double BASE_X = 34, BASE_Y = 36, BASE_H = 180;
-    public static double SC_X = 13, SC_Y = 33;
+    public static double SC_X = 13, SC_Y = 34;
     public static double CENTER_BASE_X = 12, CENTER_BASE_Y = 36;
     public static double SR_X = 9, SR_Y = 36, SR_H = -90;
     public static double SL_X = 31, SL_Y = 36, SL_H = 90;
     public static double DROP_X = 39, DROP_Y = 48;
-    public static double DROP_CENTER = 34, DROP_OFFSET = 7;
+    public static double DROP_CENTER = 35, DROP_OFFSET = 7;
     public static double PARK_X = 60, PARK_Y = 60;
     public static double BOARD_X1 = -55, BOARD_Y1 = 12;
     public static double BOARD_X2 = 38, BOARD_Y2 = 12;

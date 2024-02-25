@@ -51,7 +51,7 @@ public class DriveConstants {
     public static boolean USE_WEBCAM = true;
 
     public static int EXPOSURE_MS = 6;
-    public static int GAIN = 125;
+    public static int GAIN = 190;
     // to be determined
     public static int DESIRED_DISTANCE = 10;
     public static double BACKSTAGE_OFFSET = -24;
