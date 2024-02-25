@@ -6,7 +6,12 @@ import android.graphics.Paint;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
@@ -14,8 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PropProcessor implements VisionProcessor {
-    public Scalar blueMin = new Scalar(90, 50, 50);
-    public Scalar blueMax = new Scalar(128, 255, 255);
+    // FIXME test this day of pls &&& look at the diagram
+    public Scalar blueMin = new Scalar(90, 150, 50);
+    public Scalar blueMax = new Scalar(125, 255, 255);
     public Scalar red1Min = new Scalar(0, 50, 50);
     public Scalar red1Max = new Scalar(15, 255, 255);
     public Scalar red2Min = new Scalar(170, 50, 50);
