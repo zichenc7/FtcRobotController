@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
@@ -32,22 +33,20 @@ public class BlueBackOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
-        sleep(3000);
+        sleep(TIME_OUT);
         init2();
         visionPortal.close();
-        telemetry.addData("HI", propPosition.toString());
-        telemetry.update();
 
         TrajectorySequence spike = buildSpikeTraj(startPose);
-        TrajectorySequence toDrop = driveToBoard(spike.end());
-        TrajectorySequence drop = buildBackdropTraj(toDrop.end());
-        TrajectorySequence park = buildParkTraj(drop.end());
+        //TrajectorySequence toDrop = driveToBoard(spike.end());
+        //TrajectorySequence drop = buildBackdropTraj(toDrop.end());
+        //TrajectorySequence park = buildParkTraj(drop.end());
 
         drive.followTrajectorySequence(spike);
-        drive.followTrajectorySequence(toDrop);
-        drive.followTrajectorySequence(drop);
-        scoreParkMotions();
-        drive.followTrajectorySequence(park);
+        //drive.followTrajectorySequence(toDrop);
+        //drive.followTrajectorySequence(drop);
+        //scoreParkMotions();
+        //drive.followTrajectorySequence(park);
 
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();
@@ -55,6 +54,6 @@ public class BlueBackOp extends AutonomousOpBase {
 
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
-        poseStorage = drive.getPoseEstimate();
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }

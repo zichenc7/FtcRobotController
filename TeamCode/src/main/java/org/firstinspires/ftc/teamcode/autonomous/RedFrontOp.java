@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.PoseStorage;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.vision.TeamColour;
 
@@ -31,9 +32,9 @@ public class RedFrontOp extends AutonomousOpBase {
 
         waitForStart();
         if (isStopRequested()) return;
-        sleep(5000);
+        sleep(TIME_OUT);
         init2();
-
+        visionPortal.close();
 
         TrajectorySequence spike = buildSpikeTraj(startPose);
         TrajectorySequence drop = buildBackdropTraj(spike.end());
@@ -44,13 +45,11 @@ public class RedFrontOp extends AutonomousOpBase {
         scoreParkMotions();
         drive.followTrajectorySequence(park);
 
-
         while (!isStopRequested() && opModeIsActive()) {
             drive.update();
         }
         // to transfer robot's position to teleOp
         // this should be the last thing called before the opmode is turned off.
-        poseStorage = drive.getPoseEstimate();
-        visionPortal.close();
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }
