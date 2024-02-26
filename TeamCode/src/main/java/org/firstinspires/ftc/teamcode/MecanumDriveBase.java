@@ -85,7 +85,7 @@ public class MecanumDriveBase extends MecanumDrive {
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
     public DcMotor armMotor;
     public Servo droneLaunchServo, clawServo, wrist;
-    public RevBlinkinLedDriver lights;
+    //public RevBlinkinLedDriver lights;
     private List<DcMotorEx> motors;
 
     public IMU imu;
@@ -131,7 +131,7 @@ public class MecanumDriveBase extends MecanumDrive {
         droneLaunchServo = hardwareMap.get(Servo.class, "droneLaunchServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         wrist = hardwareMap.get(Servo.class, "wrist");
-        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        //lights = hardwareMap.get(Servo.class, "lights");
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();

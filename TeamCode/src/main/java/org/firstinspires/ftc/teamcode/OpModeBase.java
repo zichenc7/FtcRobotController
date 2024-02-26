@@ -96,11 +96,11 @@ public abstract class OpModeBase extends LinearOpMode {
     }
     public void clawModify() throws InterruptedException {
         if (clawPos == CLAW_OPEN){
-            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.WHITE);
             clawPos = CLAW_CLOSE;
+            //drive.lights.setPosition(1.0);
         } else if (clawPos == CLAW_CLOSE){
-            drive.lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
             clawPos = CLAW_OPEN;
+            //drive.lights.setPosition(-1.0);
         }
     }
 
